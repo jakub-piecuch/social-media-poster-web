@@ -52,6 +52,15 @@ public/
   vercel.svg
   window.svg
 src/
+  api/
+    socia-media-user/
+      types/
+        SocialMediaUser.ts
+        SocialMediaUserEntity.ts
+      s-m-user.mapper.ts
+      s-m-user.repository.ts
+      s-m-user.service.ts
+      s-m.user.controller.ts
   app/
     globals.css
     layout.tsx
@@ -109,6 +118,13 @@ src/
       toggle.tsx
       tooltip.tsx
       use-toast.ts
+  lib/
+    mongoose.ts
+  pages/
+    api/
+      social-media-user/
+        [id].ts
+        index.ts
 .gitignore
 application-summary.md
 development-tasks.md
@@ -149,6 +165,393 @@ File: public/vercel.svg
 File: public/window.svg
 ================
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+
+================
+File: src/api/socia-media-user/types/SocialMediaUser.ts
+================
+export class SocialMediaUser {
+  id: string;
+  username: string;
+  platform: string;
+  createdAt: Date;
+  updatedAt: Date;
+  
+  constructor(socialMediaUser: SocialMediaUser) {
+    this.id = socialMediaUser.id;
+    this.username = socialMediaUser.username;
+    this.platform = socialMediaUser.platform;
+    this.createdAt = socialMediaUser.createdAt;
+    this.updatedAt = socialMediaUser.updatedAt;
+  }
+}
+
+================
+File: src/api/socia-media-user/types/SocialMediaUserEntity.ts
+================
+// src/api/models/SocialMediaUserEntity.ts
+import mongoose, { Document, Schema } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+
+export interface ISocialMediaUserEntity extends Document {
+  _id: string
+  username: string;
+  platform: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const SocialMediaUserEntitySchema = new Schema<ISocialMediaUserEntity>(
+  {
+    _id: { type: String, default: uuidv4 },
+    username: { type: String, required: true },
+    platform: { type: String, required: true },
+    createdAt: { type: Date, required: true },
+    updatedAt: { type: Date, required: true },
+  },
+  { timestamps: true }
+);
+
+// Create a compound index for userId and platform to ensure a user can only have one account per platform
+SocialMediaUserEntitySchema.index({ username: 1, platform: 1 }, { unique: true });
+
+export const SocialMediaUserEntity = mongoose.models.SocialMediaUserEntity ||
+  mongoose.model<ISocialMediaUserEntity>('SocialMediaUserEntity', SocialMediaUserEntitySchema);
+
+================
+File: src/api/socia-media-user/s-m-user.mapper.ts
+================
+import { v4 as uuidv4 } from 'uuid';
+import { ISocialMediaUserEntity } from '../socia-media-user/types/SocialMediaUserEntity';
+import { SocialMediaUser } from '../socia-media-user/types/SocialMediaUser';
+
+export class SocialMediaMapper {
+  static toDomain(entity: ISocialMediaUserEntity): SocialMediaUser {
+    return new SocialMediaUser({
+      id: entity._id,
+      username: entity.username,
+      platform: entity.platform,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt
+    });
+  }
+
+  static toEntity(domain: SocialMediaUser): Partial<ISocialMediaUserEntity> {
+    const isNew = !domain.id || domain.id === '';
+
+  return {
+    _id: domain.id || uuidv4(),
+    username: domain.username,
+    platform: domain.platform,
+    createdAt: domain.createdAt,
+    updatedAt: domain.updatedAt
+    };
+  }
+}
+
+================
+File: src/api/socia-media-user/s-m-user.repository.ts
+================
+// src/api/repositories/SocialMediaUserRepository.ts
+import mongoose from 'mongoose';
+import { SocialMediaUser } from './types/SocialMediaUser';
+import { SocialMediaMapper } from './s-m-user.mapper';
+import { SocialMediaUserEntity } from './types/SocialMediaUserEntity';
+import { connectToDatabase } from '@/lib/mongoose';
+
+export class SocialMediaUserRepository {
+  /**
+   * Save a social media user to the database
+   * @param socialMedia The social media domain object to save
+   * @returns The saved social media user domain object
+   */
+  async save(socialMedia: SocialMediaUser): Promise<SocialMediaUser> {
+    await connectToDatabase();
+
+    const entity = SocialMediaMapper.toEntity(socialMedia);
+    
+    // if (!entity._id) {
+    //   throw new Error('[ERROR][Repository] Entity._id is missing or invalid');
+    // }
+
+    console.log('[DEBUG] Searching for socialMediaUser:', { _id: entity._id, platform: entity.platform });
+    const existingEntity = await SocialMediaUserEntity.findOne({
+      _id: entity._id,
+      platform: entity.platform
+    });
+
+    if (existingEntity) {
+      // Update existing record
+      Object.assign(existingEntity, entity);
+      const savedEntity = await existingEntity.save();
+      return SocialMediaMapper.toDomain(savedEntity);
+    } else {
+      // Create new record
+      const newEntity = new SocialMediaUserEntity(entity);
+      const savedEntity = await newEntity.save();
+      return SocialMediaMapper.toDomain(savedEntity);
+    }
+  }
+
+  /**
+   * Find all social media user accounts
+   * @param limit Optional limit on number of results
+   * @param skip Optional number of records to skip (for pagination)
+   * @returns Array of social media user domain objects
+   */
+  async findAll(limit?: number, skip?: number): Promise<SocialMediaUser[]> {
+    const query = SocialMediaUserEntity.find();
+    
+    if (skip !== undefined) {
+      query.skip(skip);
+    }
+    
+    if (limit !== undefined) {
+      query.limit(limit);
+    }
+    
+    const entities = await query.exec();
+    return entities.map(entity => SocialMediaMapper.toDomain(entity));
+  }
+
+  /**
+   * Find a social media user account by its MongoDB ID
+   * @param id The MongoDB ID
+   * @returns The social media user domain object or null if not found
+   */
+  async findById(id: string | mongoose.Types.ObjectId): Promise<SocialMediaUser | null> {
+    const entity = await SocialMediaUserEntity.findById(id);
+    return entity ? SocialMediaMapper.toDomain(entity) : null;
+  }
+
+  /**
+   * Find all social media accounts for a specific user
+   * @param id The user ID
+   * @returns Array of social media user domain objects
+   */
+  async findByid(id: string): Promise<SocialMediaUser[]> {
+    const entities = await SocialMediaUserEntity.find({ id });
+    return entities.map(entity => SocialMediaMapper.toDomain(entity));
+  }
+
+  /**
+   * Find a specific social media account for a user on a specific platform
+   * @param id The user ID
+   * @param platform The social media platform
+   * @returns The social media user domain object or null if not found
+   */
+  async findByidAndPlatform(id: string, platform: string): Promise<SocialMediaUser | null> {
+    const entity = await SocialMediaUserEntity.findOne({ id, platform });
+    return entity ? SocialMediaMapper.toDomain(entity) : null;
+  }
+
+  /**
+   * Find all social media accounts for a specific platform
+   * @param platform The social media platform
+   * @returns Array of social media user domain objects
+   */
+  async findByPlatform(platform: string): Promise<SocialMediaUser[]> {
+    const entities = await SocialMediaUserEntity.find({ platform });
+    return entities.map(entity => SocialMediaMapper.toDomain(entity));
+  }
+
+  /**
+   * Find all valid (non-expired) social media accounts
+   * @returns Array of social media user domain objects with valid tokens
+   */
+  async findActive(): Promise<SocialMediaUser[]> {
+    const entities = await SocialMediaUserEntity.find({
+      $or: [
+        { tokenExpiry: { $gt: new Date() } },
+        { tokenExpiry: null }
+      ]
+    });
+    return entities.map(entity => SocialMediaMapper.toDomain(entity));
+  }
+
+  /**
+   * Delete a social media user account by its MongoDB ID
+   * @param id The MongoDB ID
+   * @returns True if deleted, false if not found
+   */
+  async deleteById(id: string | mongoose.Types.ObjectId): Promise<boolean> {
+    const result = await SocialMediaUserEntity.deleteOne({ _id: id });
+    return result.deletedCount === 1;
+  }
+
+  /**
+   * Delete a specific social media account for a user on a specific platform
+   * @param id The user ID
+   * @param platform The social media platform
+   * @returns True if deleted, false if not found
+   */
+  async deleteByidAndPlatform(id: string, platform: string): Promise<boolean> {
+    const result = await SocialMediaUserEntity.deleteOne({ id, platform });
+    return result.deletedCount === 1;
+  }
+
+  /**
+   * Delete all social media accounts for a specific user
+   * @param id The user ID
+   * @returns Number of records deleted
+   */
+  async deleteByid(id: string): Promise<number> {
+    const result = await SocialMediaUserEntity.deleteMany({ id });
+    return result.deletedCount;
+  }
+
+  /**
+   * Count the total number of social media user accounts
+   * @returns The total count
+   */
+  async count(): Promise<number> {
+    return await SocialMediaUserEntity.countDocuments();
+  }
+
+  /**
+   * Count the number of social media accounts for a specific user
+   * @param id The user ID
+   * @returns The count for this user
+   */
+  async countByid(id: string): Promise<number> {
+    return await SocialMediaUserEntity.countDocuments({ id });
+  }
+
+  /**
+   * Count the number of accounts for a specific platform
+   * @param platform The social media platform
+   * @returns The count for this platform
+   */
+  async countByPlatform(platform: string): Promise<number> {
+    return await SocialMediaUserEntity.countDocuments({ platform });
+  }
+}
+
+================
+File: src/api/socia-media-user/s-m-user.service.ts
+================
+import { SocialMediaUserRepository } from "./s-m-user.repository";
+import { SocialMediaUser } from "./types/SocialMediaUser";
+
+export class SocialMediaUserService {
+  private repository: SocialMediaUserRepository;
+
+  constructor() {
+    this.repository = new SocialMediaUserRepository();
+  }
+
+  async createSocialMediaUser(userData: Omit<SocialMediaUser, 'id'>): Promise<SocialMediaUser> {
+    console.log(`Creating user from userData ${userData}`)
+
+    const newUser = new SocialMediaUser({
+      id: '',
+      username: userData.username,
+      platform: userData.platform,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    const savedUser = this.repository.save(newUser)
+    
+    console.log('User created succesfully:', {id: savedUser.id})
+
+    return savedUser
+  }
+
+  async updateSocialMediaUser(id: string, userData: Partial<SocialMediaUser>): Promise<SocialMediaUser | null> {
+    const existingUser = await this.repository.findById(id);
+    
+    if (!existingUser) {
+      return null;
+    }
+
+    // Update the user properties
+    const updatedUser = new SocialMediaUser({
+      ...existingUser,
+      ...userData,
+      id: existingUser.id, // Ensure we don't override the ID
+      updatedAt: new Date() // Update the updatedAt timestamp
+    });
+
+    // Save the updated user
+    return this.repository.save(updatedUser);
+  }
+
+  async findSocialMediaUserById(id: string): Promise<SocialMediaUser | null> {
+    return this.repository.findById(id);
+  }
+}
+
+================
+File: src/api/socia-media-user/s-m.user.controller.ts
+================
+// src/api/socia-media-user/controller/socialMediaUserController.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { SocialMediaUserService } from './s-m-user.service';
+
+const socialMediaUserService = new SocialMediaUserService();
+
+export async function createSocialMediaUser(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const userData = req.body;
+    
+    if (!userData.username || !userData.platform) {
+      return res.status(400).json({ error: 'Username and platform are required' });
+    }
+    
+    const createdUser = await socialMediaUserService.createSocialMediaUser(userData);
+
+    return res.status(201).json(createdUser);
+  } catch (error) {
+    console.error('Error creating social media user:', error);
+    return res.status(500).json({ error: 'Failed to create social media user' });
+  }
+}
+
+export async function updateSocialMediaUser(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const { id } = req.query;
+    const userData = req.body;
+    
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ error: 'Valid user ID is required' });
+    }
+    
+    const updatedUser = await socialMediaUserService.updateSocialMediaUser(id, userData);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'Social media user not found' });
+    }
+    
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error updating social media user:', error);
+    return res.status(500).json({ error: 'Failed to update social media user' });
+  }
+}
+
+/**
+ * Handler for finding a social media user by ID
+ */
+export async function findSocialMediaUserById(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const { id } = req.query;
+    
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ error: 'Valid user ID is required' });
+    }
+    
+    const user = await socialMediaUserService.findSocialMediaUserById(id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Social media user not found' });
+    }
+    
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error('Error finding social media user:', error);
+    return res.status(500).json({ error: 'Failed to find social media user' });
+  }
+}
 
 ================
 File: src/app/globals.css
@@ -6031,6 +6434,88 @@ import { useToast, toast } from "@/hooks/useToast";
 export { useToast, toast };
 
 ================
+File: src/lib/mongoose.ts
+================
+import mongoose from 'mongoose';
+
+const MONGODB_URI = process.env.MONGODB_URI || '';
+
+let cached = (global as any).mongoose;
+
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
+
+export async function connectToDatabase() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!MONGODB_URI) {
+    throw Error('[FIX-ME] Empty mongodb connection string.')
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+    }).then((mongoose) => {
+      console.log('[MongoDB] ✅ Connected');
+      return mongoose;
+    }).catch((err) => {
+      console.error('[MongoDB] ❌ Connection error:', err);
+      throw err;
+    });
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+================
+File: src/pages/api/social-media-user/[id].ts
+================
+// src/pages/api/social-media-user/[id].ts
+import { findSocialMediaUserById, updateSocialMediaUser } from '@/api/socia-media-user/s-m.user.controller';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { method } = req;
+
+  switch (method) {
+    case 'GET':
+      return findSocialMediaUserById(req, res);
+
+    case 'PUT':
+      return updateSocialMediaUser(req, res);
+    
+    default:
+      res.setHeader('Allow', ['GET', 'PUT']);
+      return res.status(405).json({ error: `Method ${method} Not Allowed` });
+  }
+}
+
+================
+File: src/pages/api/social-media-user/index.ts
+================
+// src/pages/api/social-media-user/index.ts
+import { createSocialMediaUser } from '@/api/socia-media-user/s-m.user.controller';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { method } = req;
+
+  switch (method) {
+    case 'POST':
+      return createSocialMediaUser(req, res);
+    
+    default:
+      res.setHeader('Allow', ['POST']);
+      return res.status(405).json({ error: `Method ${method} Not Allowed` });
+  }
+}
+
+================
 File: .gitignore
 ================
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -6105,6 +6590,7 @@ social-media-poster/
 │   │   ├── constants/         # Frontend constants
 │   │   └── styles/            # Global styles
 │   └── api/                   # Backend package
+all these below for api will be domain driven so each document stored in db will have its own package with all these
 │       ├── controllers/       # Request handlers (similar to Spring controllers)
 │       ├── services/          # Business logic layer
 │       ├── models/            # Data models and schemas
@@ -6146,6 +6632,9 @@ social-media-poster/
   - RESTful API design principles
   - Proper error handling and status codes
   - Authentication and authorization middleware
+
+- **Documentation**:
+  - do not add java docs   
 
 ### Database Structure
 - MongoDB collections will follow domain-driven design principles
@@ -6328,20 +6817,22 @@ File: package.json
     "lint": "next lint"
   },
   "dependencies": {
+    "mongoose": "^8.13.2",
+    "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.1"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
 

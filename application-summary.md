@@ -25,6 +25,7 @@ social-media-poster/
 │   │   ├── constants/         # Frontend constants
 │   │   └── styles/            # Global styles
 │   └── api/                   # Backend package
+all these below for api will be domain driven so each document stored in db will have its own package with all these
 │       ├── controllers/       # Request handlers (similar to Spring controllers)
 │       ├── services/          # Business logic layer
 │       ├── models/            # Data models and schemas
@@ -66,6 +67,9 @@ social-media-poster/
   - RESTful API design principles
   - Proper error handling and status codes
   - Authentication and authorization middleware
+
+- **Documentation**:
+  - do not add java docs   
 
 ### Database Structure
 - MongoDB collections will follow domain-driven design principles
