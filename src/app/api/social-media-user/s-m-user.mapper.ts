@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ISocialMediaUserEntity } from '../socia-media-user/types/SocialMediaUserEntity';
-import { SocialMediaUser } from '../socia-media-user/types/SocialMediaUser';
+import { SocialMediaUser } from './types/SocialMediaUser';
+import { ISocialMediaUserEntity } from './types/SocialMediaUserEntity';
 
 export class SocialMediaMapper {
   static toDomain(entity: ISocialMediaUserEntity): SocialMediaUser {

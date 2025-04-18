@@ -24,7 +24,8 @@ social-media-poster/
 │   │   ├── utils/             # Frontend utilities
 │   │   ├── constants/         # Frontend constants
 │   │   └── styles/            # Global styles
-│   └── api/                   # Backend package
+│   ├── api/                   # Backend API routes & backend packages
+│   └── [routes]/              # App routes
 all these below for api will be domain driven so each document stored in db will have its own package with all these
 │       ├── controllers/       # Request handlers (similar to Spring controllers)
 │       ├── services/          # Business logic layer
@@ -34,8 +35,6 @@ all these below for api will be domain driven so each document stored in db will
 │       ├── middleware/        # API middleware
 │       └── config/            # Application configuration
 ├── pages/                     # Next.js pages
-│   ├── api/                   # API routes
-│   └── [routes]/              # App routes
 └── public/                    # Static assets
 ```
 
