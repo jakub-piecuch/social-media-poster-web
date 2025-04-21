@@ -10,6 +10,8 @@ export interface PostEntity extends Document {
   postId: string;
   groupId: string;
   userId: string;
+  submitted: boolean;
+  underReview: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -23,6 +25,8 @@ const PostEntitySchema = new Schema<PostEntity>({
   postId: { type: String, default: uuidv4 },
   groupId: { type: String, default: uuidv4 },
   userId: { type: String, default: uuidv4 },
+  submitted: { type: Boolean, required: true, default: false },
+  underReview: { type: Boolean, required: true, default: false}
 },
 {
   timestamps: true

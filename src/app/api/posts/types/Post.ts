@@ -7,6 +7,8 @@ export class Post {
   postId?: string;
   groupId: string;
   userId: string;
+  submitted?: boolean;
+  underReview?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -17,6 +19,8 @@ export class Post {
     this.postId = post.id;
     this.groupId = post.groupId;
     this.userId = post.userId;
+    this.submitted = post.submitted ?? false;
+    this.underReview = post.underReview ?? false;
     this.createdAt = post.createdAt;
     this.updatedAt = post.updatedAt;
   }

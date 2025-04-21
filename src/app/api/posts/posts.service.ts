@@ -37,4 +37,15 @@ export class PostsService {
 
     return posts;
   }
+
+  async submitPostById(id: string): Promise<void> {
+    const post = await this.findPostById(id);
+
+    const postToUpdate = {
+      ...post,
+      submitted: true
+    }
+
+    await this.postsRepository.updatePost(postToUpdate);
+  }
 }

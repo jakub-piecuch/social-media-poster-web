@@ -18,12 +18,19 @@ export class PostsRepository {
   }
 
   async findById(id: string): Promise<Post | null> {
-    const entity = await PostEntity.findOne({ id: id });
+    const entity = await PostEntity.findOne({ _id: id });
     return this.mapper.toDomain(entity);
   }
 
   async findAllByUserId(userId: string): Promise<Post[]> {
     const entities = await PostEntity.find({ userId: userId });
     return entities.map(post => this.mapper.toDomain(post))
+  }
+
+  async updatePost(post: Post): Promise<void> {
+    const result = await PostEntity.updateOne(
+      { _id: post.id },
+      { $set: post }
+    );
   }
 }

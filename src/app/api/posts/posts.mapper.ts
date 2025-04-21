@@ -14,6 +14,8 @@ export class PostsMapper {
       postId: entity.postId,
       groupId: entity.groupId,
       userId: entity.userId,
+      submitted: entity.submitted,
+      underReview: entity.underReview,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     });
@@ -52,6 +54,8 @@ export class PostsMapper {
       postId: post.postId,
       groupId: post.groupId,
       userId: post.userId,
+      submitted: post.submitted ?? false,
+      underReview: post.underReview ?? false,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
     };

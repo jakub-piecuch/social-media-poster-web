@@ -6,6 +6,8 @@ export interface PostResponse {
   postId: string,
   groupId: string,
   userId: string,
+  submitted: boolean,
+  underReview: boolean,
   createdAt: Date,
   updatedAt: Date,
 }
