@@ -2,6 +2,7 @@
 
 ## Project Overview
 Social Media Poster is a Next.js application that allows users to create, schedule, and manage social media posts across different platforms.
+This will act like bunch of bots (fake social-media accounts) running on a schedule commenting posts and basically making traffic on the groups.
 
 ## Technical Stack
 - **Frontend**: Next.js with React

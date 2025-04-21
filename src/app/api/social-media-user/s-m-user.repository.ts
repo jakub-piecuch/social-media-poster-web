@@ -44,6 +44,23 @@ export class SocialMediaUserRepository {
     return entities.map(entity => SocialMediaMapper.toDomain(entity));
   }
 
+  async findByQuery(query: any, limit?: number, skip?: number): Promise<SocialMediaUser[]> {
+    await connectToDatabase();
+    
+    const queryBuilder = SocialMediaUserEntity.find(query);
+    
+    if (skip !== undefined) {
+      queryBuilder.skip(skip);
+    }
+    
+    if (limit !== undefined) {
+      queryBuilder.limit(limit);
+    }
+    
+    const entities = await queryBuilder.exec();
+    return entities.map(entity => SocialMediaMapper.toDomain(entity));
+  }
+
 
   async findById(id: string | mongoose.Types.ObjectId): Promise<SocialMediaUser | null> {
     const entity = await SocialMediaUserEntity.findById(id);

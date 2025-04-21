@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Social Media Poster - Application Summary
 
-## Getting Started
+## Project Overview
+Social Media Poster is a Next.js application that allows users to create, schedule, and manage social media posts across different platforms. The application functions as an automation system that runs multiple "bot" accounts on a schedule, generating traffic in Facebook groups through comments and posts.
 
-First, run the development server:
+## Technical Stack
+- **Frontend**: Next.js with React 19
+- **Backend**: Next.js API routes (backend for frontend)
+- **Database**: MongoDB v7.0
+- **Authentication**: NextAuth.js with Facebook OAuth
+- **Containerization**: Docker
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Key Features
+- Management of social media bot accounts
+- Facebook API integration for automated interactions
+- OAuth-based authentication for Facebook accounts
+- Secure token management and refresh mechanisms
+- Domain-driven design for scalable architecture
+
+## Project Structure
+
+### Package Structure
+```
+social-media-poster/
+├── src/                       # Main source code
+│   ├── app/                   # Frontend package
+│   │   ├── api/               # Backend API routes
+│   │   │   ├── auth/          # Authentication endpoints
+│   │   │   ├── facebook-accounts/ # Facebook account management
+│   │   │   ├── facebook-api/  # Facebook Graph API services
+│   │   │   └── social-media-user/ # Social media user management
+│   │   ├── components/        # UI components
+│   │   ├── hooks/             # Custom React hooks
+│   │   └── lib/               # Shared utilities
+│   ├── errors/                # Error handling infrastructure
+│   ├── lib/                   # Core libraries (MongoDB, etc.)
+│   └── auth.ts                # NextAuth configuration
+└── public/                    # Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture Details
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Domain-Driven Design
+The application follows domain-driven design principles with clear separation of concerns:
+- **Controllers**: Handle HTTP requests/responses and parameter validation
+- **Services**: Contain business logic and orchestrate operations
+- **Repositories**: Abstract database operations
+- **Models**: Define domain entities and data structures
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Facebook API Integration
+The Facebook API integration provides a comprehensive set of features:
 
-## Learn More
+#### Data Model
+```typescript
+interface FacebookAuthData {
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt: Date;
+  scopes: string[];
+  facebookUserId: string;
+  isActive: boolean;
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+#### Authentication Flow
+1. Admin users log in to the application using NextAuth
+2. Admin initiates Facebook account addition via `/api/auth/facebook/initiate`
+3. User is redirected to Facebook for authorization
+4. Facebook redirects to our callback URL
+5. Callback exchanges the authorization code for an access token
+6. The system creates a new Facebook account in the database
+7. Tokens are securely stored and refreshed as needed
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### API Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/auth/facebook/initiate` | Initiates Facebook OAuth flow |
+| GET | `/api/auth/facebook/callback` | Handles OAuth callback |
+| GET | `/api/facebook-api` | Lists all Facebook accounts |
+| POST | `/api/facebook-api` | Creates a new Facebook account |
+| GET | `/api/facebook-api/[id]` | Gets a specific Facebook account |
+| PATCH | `/api/facebook-api/[id]` | Updates account status |
+| DELETE | `/api/facebook-api/[id]` | Deletes a Facebook account |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### Core Services
+- **FacebookApiService**: Handles all interactions with the Facebook Graph API
+- **FacebookAccountService**: Manages Facebook account operations within our system
+- **SocialMediaUserRepository**: Provides data access layer for all social media accounts
 
-## Deploy on Vercel
+### Error Handling
+The application implements a robust error handling system:
+- Custom exception classes for different error types
+- Consistent error response format
+- Domain-specific exceptions for better error identification
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## MongoDB Structure
+- Collections follow domain-driven design
+- Indexes for optimal query performance
+- Compound indexes to ensure data integrity
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment Configuration
+The following environment variables are required:
+```
+# MongoDB Connection
+MONGODB_URI=mongodb://root:rootpassword@localhost:27017/social-media-poster
+
+# NextAuth Secret
+NEXTAUTH_SECRET=your_nextauth_secret_here
+NEXTAUTH_URL=http://localhost:3000
+
+# Facebook API
+FACEBOOK_CLIENT_ID=your_facebook_app_id_here
+FACEBOOK_CLIENT_SECRET=your_facebook_app_secret_here
+FACEBOOK_REDIRECT_URI=http://localhost:3000/api/auth/callback/facebook
+FACEBOOK_API_VERSION=v22.0
+```
+
+## Docker Setup
+- MongoDB container for development and production
+- Docker Compose for orchestration
+- Volume mapping for data persistence
+
+## Getting Started
+1. Clone the repository
+2. Create a `.env.local` file with the required environment variables
+3. Start the MongoDB container with Docker Compose:
+   ```
+   docker-compose up -d mongodb
+   ```
+4. Install dependencies:
+   ```
+   npm install
+   ```
+5. Run the development server:
+   ```
+   npm run dev
+   ```
+
+## Future Development
+- **Bot Scheduling System**: Implementation of automated scheduling for bot actions
+- **Frontend Dashboard**: User interface for managing bot accounts and activities
+- **Analytics**: Reporting on bot performance and engagement metrics
+- **Multi-platform Support**: Extending to other social media platforms beyond Facebook
