@@ -4,7 +4,7 @@ import { SocialMediaUser } from './types/SocialMediaUser';
 import { SocialMediaUserEntity } from './types/SocialMediaUserEntity';
 import { FacebookApiData } from './types/FacebookApiData';
 
-export class SocialMediaMapper {
+export class SocialMediaUsersMapper {
   static toDomain(entity: SocialMediaUserEntity): SocialMediaUser {
     return new SocialMediaUser({
       id: entity._id,
@@ -17,8 +17,6 @@ export class SocialMediaMapper {
   }
 
   static toEntity(domain: SocialMediaUser): Partial<SocialMediaUserEntity> {
-    const isNew = !domain.id || domain.id === '';
-
     return {
       _id: domain.id || uuidv4(),
       username: domain.username,

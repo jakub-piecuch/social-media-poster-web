@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 export interface ErrorDetails {
   timestamp: Date
   status: number
@@ -51,4 +53,20 @@ export class BaseException extends Error {
       message: this.message,
     };
   }
+}
+
+export function handleApiError(error: any) {
+  if (error instanceof BaseException) {
+    const errorDetails = error.toErrorDetails();
+    return NextResponse.json(errorDetails, { status: error.status });
+  }
+  
+  const errorDetails = {
+    timestamp: new Date(),
+    status: 500,
+    reason: error.name || 'UnknownError',
+    message: error.message || 'Internal Server Error'
+  };
+  
+  return NextResponse.json(errorDetails, { status: 500 });
 }

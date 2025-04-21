@@ -1,7 +1,7 @@
 // src/api/repositories/SocialMediaUserRepository.ts
 import mongoose from 'mongoose';
 import { SocialMediaUser } from './types/SocialMediaUser';
-import { SocialMediaMapper } from './s-m-user.mapper';
+import { SocialMediaUsersMapper } from './s-m-user.mapper';
 import { SocialMediaUserEntity } from './types/SocialMediaUserEntity';
 import { connectToDatabase } from '@/lib/mongoose';
 import { SocialMediaUserException } from './s-m-user.exception';
@@ -11,7 +11,7 @@ export class SocialMediaUserRepository {
   async save(socialMedia: SocialMediaUser): Promise<SocialMediaUser> {
     await connectToDatabase();
 
-    const entity = SocialMediaMapper.toEntity(socialMedia);
+    const entity = SocialMediaUsersMapper.toEntity(socialMedia);
 
     console.log('[DEBUG] Searching for socialMediaUser:', { _id: entity._id, platform: entity.platform });
     const existingEntity = await SocialMediaUserEntity.findOne({
@@ -25,7 +25,7 @@ export class SocialMediaUserRepository {
       // Create new record
       const newEntity = new SocialMediaUserEntity(entity);
       const savedEntity = await newEntity.save();
-      return SocialMediaMapper.toDomain(savedEntity);
+      return SocialMediaUsersMapper.toDomain(savedEntity);
     }
   }
 
@@ -41,7 +41,7 @@ export class SocialMediaUserRepository {
     }
     
     const entities = await query.exec();
-    return entities.map(entity => SocialMediaMapper.toDomain(entity));
+    return entities.map(entity => SocialMediaUsersMapper.toDomain(entity));
   }
 
   async findByQuery(query: any, limit?: number, skip?: number): Promise<SocialMediaUser[]> {
@@ -58,13 +58,13 @@ export class SocialMediaUserRepository {
     }
     
     const entities = await queryBuilder.exec();
-    return entities.map(entity => SocialMediaMapper.toDomain(entity));
+    return entities.map(entity => SocialMediaUsersMapper.toDomain(entity));
   }
 
 
   async findById(id: string | mongoose.Types.ObjectId): Promise<SocialMediaUser | null> {
     const entity = await SocialMediaUserEntity.findById(id);
-    return entity ? SocialMediaMapper.toDomain(entity) : null;
+    return entity ? SocialMediaUsersMapper.toDomain(entity) : null;
   }
 
 

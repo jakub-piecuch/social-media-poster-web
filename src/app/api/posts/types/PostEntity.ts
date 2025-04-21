@@ -4,14 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export interface PostEntity extends Document {
-  _id: string;
+  _id?: string;
   content: string;
   platform: PlatformEnum
   postId: string;
   groupId: string;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const PlatformEnumValues = Object.values(PlatformEnum);
@@ -23,8 +23,6 @@ const PostEntitySchema = new Schema<PostEntity>({
   postId: { type: String, default: uuidv4 },
   groupId: { type: String, default: uuidv4 },
   userId: { type: String, default: uuidv4 },
-  createdAt: { type: Date, required: true },
-  updatedAt: { type: Date, required: true },
 },
 {
   timestamps: true
