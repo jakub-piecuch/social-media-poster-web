@@ -3,7 +3,7 @@ import { PlatformEnum } from "@/app/types/GlobalEnum";
 export class Post {
   id?: string;
   content: string;
-  platform: PlatformEnum;
+  platform: PlatformEnum; // this might be a list
   postId?: string;
   groupId: string;
   userId: string;

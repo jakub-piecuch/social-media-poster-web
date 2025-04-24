@@ -12,9 +12,9 @@ export async function POST(
   console.log('[INFO] got request to submit post:', id)
 
   try {
-    await postsService.submitPostById(id)
+    const result = await postsService.submitPostById(id)
 
-    return new NextResponse(null, { status: 200 })
+    return NextResponse.json(result, { status: 200 })
 
   } catch (error: any) {
     return handleApiError(error);

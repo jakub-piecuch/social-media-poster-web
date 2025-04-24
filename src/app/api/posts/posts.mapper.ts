@@ -1,5 +1,3 @@
-import { now } from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
 import { Post } from "./types/Post";
 import { CreatePostRequest, PostResponse } from "./types/PostDto";
 import { PostEntity } from "./types/PostEntity";
@@ -21,7 +19,7 @@ export class PostsMapper {
     });
   }
 
-  toDomainFromRequest(request: CreatePostRequest): Post {
+  toDomainFromCreateRequest(request: CreatePostRequest): Post {
     return new Post({
       content: request.content,
       platform: request.platform,

@@ -14,7 +14,7 @@ export async function POST(request: Request): Promise<NextResponse<PostResponse 
   try {
     const body = await request.json();
     const postRequest = body as CreatePostRequest;
-    const newPost = mapper.toDomainFromRequest(postRequest)
+    const newPost = mapper.toDomainFromCreateRequest(postRequest)
     const createdPost = await postsService.createPost(newPost);
     const response = mapper.toResponse(createdPost);
 
@@ -26,7 +26,7 @@ export async function POST(request: Request): Promise<NextResponse<PostResponse 
 }
 
 export async function GET(request: Request): Promise<NextResponse<PostResponse[] | ErrorDetails>> {
-  console.log('[INFO] got request to find post by userId.');
+  console.log('[INFO] got request to find posts by userId.');
   
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
