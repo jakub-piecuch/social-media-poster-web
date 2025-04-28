@@ -60,4 +60,27 @@ export class PostsService {
 
     return this.mapper.toDomain(updatedPost);
   }
+
+  async updatePost(post: Post): Promise<Post> {
+    console.log('[INFO] Updating post with id:', post.id)
+
+    if (!post.id) {
+      throw PostsException.badRequest('Cannot update a post without an ID');
+    }
+
+    // Check if post is already submitted
+    const existingPost = await this.findPostById(post.id);
+    if (existingPost.submitted) {
+      throw PostsException.badRequest('Cannot update a post that has already been submitted');
+    }
+
+    const entity = this.mapper.toEntity(post);
+    const updatedPost = await this.postsRepository.updatePost(entity);
+
+    if (!updatedPost) {
+      throw PostsException.notFound();
+    }
+
+    return this.mapper.toDomain(updatedPost);
+  }
 }

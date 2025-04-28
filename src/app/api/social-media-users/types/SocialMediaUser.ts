@@ -1,12 +1,11 @@
-import { FacebookApiData } from "./FacebookApiData";
+import { PlatformEnum } from "@/app/types/GlobalEnum";
 
 export class SocialMediaUser {
-  id: string;
+  id?: string;
   username: string;
-  platform: string;
-  createdAt: Date;
-  updatedAt: Date;
-  facebookAuth?: FacebookApiData; // Optional Facebook auth data
+  platform: PlatformEnum;
+  createdAt?: Date;
+  updatedAt?: Date;
   
   constructor(socialMediaUser: SocialMediaUser) {
     this.id = socialMediaUser.id;
@@ -14,6 +13,5 @@ export class SocialMediaUser {
     this.platform = socialMediaUser.platform;
     this.createdAt = socialMediaUser.createdAt;
     this.updatedAt = socialMediaUser.updatedAt;
-    this.facebookAuth = socialMediaUser.facebookAuth;
   }
 }

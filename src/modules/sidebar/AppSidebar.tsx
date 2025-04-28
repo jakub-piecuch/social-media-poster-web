@@ -115,6 +115,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
             <div className="space-y-1">
               <NavItem to="/dashboard" icon={HomeIcon} label="Dashboard" />
               <NavItem to="/posts" icon={HomeIcon} label="Posts" />
+              <NavItem to="/social-media-users" icon={HomeIcon} label="Social Media Users" />
               {/* <NavItem to="/accounts" icon={Calendar} label="Accounts" /> */}
               {/* <NavItem to="/settings" icon={Calendar} label="Settings" /> */}
               {/* <NavItem to="/sales-performance" icon={BarChart3} label="Sales Performance" />

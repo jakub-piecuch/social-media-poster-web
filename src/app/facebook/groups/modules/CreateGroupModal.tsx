@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateGroup } from '@/app/facebook/groups/group.hooks';
-import { useSocialMediaUsers } from '../../../social-media-user/s-m-u.hooks';
+import { useSocialMediaUsers } from '../../../social-media-users/s-m-u.hooks';
 import { toast } from '@/hooks/useToast';
 import { getTheme } from '@/lib/theme-config';
 

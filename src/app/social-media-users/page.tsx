@@ -1,44 +1,38 @@
-// src/app/facebook/groups/page.tsx
+// src/app/posts/page.tsx
 'use client';
 
 import { DataTable } from "@/components/DataTable";
 import { Section } from "@/components/layout/Section";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { getTheme } from "@/lib/theme-config";
 import { Layout } from "@/modules/layout/Layout";
-import { useGroups } from "./group.hooks";
-import { CreateGroupModal } from "./modules/CreateGroupModal";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { getTheme } from "@/lib/theme-config";
-import { Badge } from "@/components/ui/badge";
-import { GroupDetailPanel } from "./modules/GroupDetailPanel";
+import { CreateSocialMediaUserModal } from "./modules/CreateSocialMediaUserModal";
+import { SocialMediaUserDetailPanel } from "./modules/SocialMediaUserDetailPanel";
+import { useSocialMediaUsers } from "./s-m-u.hooks";
 
-export default function Groups() {
+export default function SocialMediaUsers() {
   const theme = getTheme();
-  const groups = useGroups();
+  const users = useSocialMediaUsers();
   const [showCreateModal, setShowCreateModal] = useState(false);
   // New state for the detail panel
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
 
   // Define table headers
-  const headers = ["ID", "Name", "URL", "Users"];
+  const headers = ["ID", "Username", "Platform"];
   
   // Transform the data to match our headers
-  const transformedData = groups.data?.map(group => ({
-    ID: group.id,
-    NAME: group.name,
-    URL: group.url,
-    Users: group.userIds?.length > 0 ? (
-      <Badge variant="outline">{group.userIds.length} connected</Badge>
-    ) : (
-      <Badge variant="outline">No users</Badge>
-    ),
+  const transformedData = users.data?.map(user => ({
+    ID: user.id,
+    Username: user.username,
+    Platform: user.platform
   })) || [];
 
   const handleRowClick = (item: any) => {
-    setSelectedGroupId(item.ID);
+    setSelectedUserId(item.ID);
     setDetailPanelOpen(true);
   };
 
@@ -46,7 +40,7 @@ export default function Groups() {
     <Layout>
       <div className="p-6 sm:p-6 space-y-6">
         <PageHeader
-          title="Facebook Groups"
+          title="Social Media Users"
           actions={
             <Button
               size="sm"
@@ -54,47 +48,46 @@ export default function Groups() {
               onClick={() => setShowCreateModal(true)}
             >
               <Plus className="mr-2 h-4 w-4" />
-              New Group
+              New Social Media User
             </Button>
           }
         />
         
-        {/* Create Group Modal */}
-        <CreateGroupModal 
+        <CreateSocialMediaUserModal 
           open={showCreateModal}
           onOpenChange={setShowCreateModal}
         />
 
-        {/* Group Detail Panel */}
-        <GroupDetailPanel
-          groupId={selectedGroupId}
+        {/* Post Detail Panel */}
+        <SocialMediaUserDetailPanel
+          userId={selectedUserId}
           open={detailPanelOpen}
           onClose={() => {
             setDetailPanelOpen(false);
-            setSelectedGroupId(null);
+            setSelectedUserId(null);
           }}
-          onRefresh={() => groups.refetch()}
+          onRefresh={() => users.refetch()}
         />
 
         <Section className="py-6 animate-fade-in" containerSize="full">
           <div className="mt-6 animate-slide-down">
-            {groups.isLoading ? (
+            {users.isLoading ? (
               <div className="flex items-center justify-center h-40">
-                <p className="text-muted-foreground">Loading groups...</p>
+                <p className="text-muted-foreground">Loading posts...</p>
               </div>
-            ) : groups.error ? (
+            ) : users.error ? (
               <div className="flex items-center justify-center h-40">
-                <p className="text-destructive">Error loading groups. Please try again.</p>
+                <p className="text-destructive">Error loading posts. Please try again.</p>
               </div>
             ) : (
               <DataTable
                 headers={headers}
                 data={transformedData}
-                description="Facebook groups"
-                isLoading={groups.isLoading}
-                searchField="NAME"
+                description="posts"
+                isLoading={users.isLoading}
                 idField="ID"
-                onRowClick={handleRowClick} // Use our custom row click handler instead of basePath
+                searchField="Username"
+                onRowClick={handleRowClick} // Use our custom row click handler
               />
             )}
           </div>

@@ -32,4 +32,26 @@ export class PostsRepository {
 
     return updatedPost
   }
+
+  async updatePost(entity: PostEntity): Promise<PostEntity | null> {
+    // Ensure the entity has an _id
+    if (!entity._id) {
+      throw new Error("Cannot update a post without an ID");
+    }
+
+    // Update only the content field to prevent overwriting other fields
+    const updatedPost = await PostEntity.findOneAndUpdate(
+      { _id: entity._id },
+      { 
+        $set: { 
+          content: entity.content,
+          // Update the timestamp
+          updatedAt: new Date()
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    return updatedPost;
+  }
 }
