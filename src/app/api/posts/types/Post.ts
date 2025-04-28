@@ -10,7 +10,7 @@ export class Post {
   };
   userId?: string;
   submitted?: boolean;
-  underReview?: boolean;
+  rejected?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -24,7 +24,7 @@ export class Post {
     }
     this.userId = post.userId;
     this.submitted = post.submitted ?? false;
-    this.underReview = post.underReview ?? false;
+    this.rejected = post.rejected ?? false;
     this.createdAt = post.createdAt;
     this.updatedAt = post.updatedAt;
   }

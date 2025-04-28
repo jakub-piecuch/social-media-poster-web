@@ -9,6 +9,7 @@ import { toast } from "@/hooks/useToast";
 import { Separator } from "@/components/ui/separator";
 import { Check, AlertCircle, Edit, RefreshCw } from "lucide-react";
 import { PublishToFacebookButton } from "@/components/PublishToSocialMediaButton";
+import { getTheme } from "@/lib/theme-config";
 
 interface PostDetailPanelProps {
   postId: string | null;
@@ -28,6 +29,7 @@ export function PostDetailPanel({
   const [submitting, setSubmitting] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
+  const theme = getTheme();
 
   useEffect(() => {
     // Reset state when panel is opened with a new postId
@@ -54,6 +56,36 @@ export function PostDetailPanel({
       setLoading(false);
     }
   };
+
+  const handleRejectPost = async () => {
+    if (!post?.id) return;
+
+    setSubmitting(true);
+    try {
+      // This is placeholder - you'd need to implement this endpoint
+      const response = await fetch(`/api/posts/${post.id}/reject`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ submitted: false }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update post");
+      }
+
+      toast.success("Post updated successfully");
+      setEditing(false);
+      fetchPostDetails(post.id); // Refresh post data
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error("Error updating post:", error);
+      toast.error("Failed to update post");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   const handleSubmitPost = async () => {
     if (!post?.id) return;
@@ -119,7 +151,7 @@ export function PostDetailPanel({
     <SlidePanel
       open={open}
       onClose={onClose}
-      title={loading ? "Loading Post Details..." : `Post Details: ${post?.id?.substring(0, 8)}...`}
+      title={loading ? "Loading Post Details..." : `Post Details`}
       description={post?.groupName ? `For group: ${post.groupName}` : undefined}
       width="lg"
     >
@@ -135,7 +167,7 @@ export function PostDetailPanel({
               {post.platform}
             </Badge>
             <Badge variant={post.submitted ? "success" : "default"}>
-              {post.submitted ? "Submitted" : "Draft"}
+              Submitted
             </Badge>
             {post.underReview && (
               <Badge variant="destructive">Under Review</Badge>
@@ -209,7 +241,7 @@ export function PostDetailPanel({
               <dd className="text-sm">
                 {new Date(post.updatedAt).toLocaleString()}
               </dd>
-              <dt className="text-sm font-medium text-muted-foreground">User ID</dt>
+              <dt className="text-sm font-medium text-muted-foreground">User Id</dt>
               <dd className="text-sm font-mono">{post.userId || "N/A"}</dd>
             </dl>
           </div>
@@ -224,7 +256,7 @@ export function PostDetailPanel({
                 <Button
                   onClick={handleSubmitPost}
                   disabled={submitting}
-                  className="bg-green-600 hover:bg-green-700"
+                  className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
                 >
                   <Check className="h-4 w-4 mr-2" />
                   Submit Post
@@ -236,6 +268,16 @@ export function PostDetailPanel({
                   groupUrl={`https://www.facebook.com/groups/${post.group.facebookId}`}
                   postContent={post.content}
                 />
+              )}
+
+              {!post.rejected && (
+                <Button
+                  onClick={handleRejectPost}
+                  disabled={submitting}
+                  className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}
+                >
+                  Reject Post
+                </Button>
               )}
 
             </div>

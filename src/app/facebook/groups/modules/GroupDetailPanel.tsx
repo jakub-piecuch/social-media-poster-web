@@ -27,17 +27,19 @@ export function GroupDetailPanel({
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [editingUrl, setEditingUrl] = useState(false);
-  const [editedUrl, setEditedUrl] = useState("");
+  const [editingFacebookId, setEditingFacebookId] = useState(false);
+  const [editedFacebookId, setEditedFacebookId] = useState("");
   const [selectedUserId, setSelectedUserId] = useState("");
   
   const { data: users, isLoading: isLoadingUsers } = useSocialMediaUsers();
 
   useEffect(() => {
+
+    
     // Reset state when panel is opened with a new groupId
-    if (open && groupId) {
+    if (open && groupId) {      
       setLoading(true);
-      setEditingUrl(false);
+      setEditingFacebookId(false);
       fetchGroupDetails(groupId);
     }
   }, [open, groupId]);
@@ -50,7 +52,7 @@ export function GroupDetailPanel({
       }
       const data = await response.json();
       setGroup(data);
-      setEditedUrl(data.url);
+      setEditedFacebookId(data.facebookId);
     } catch (error) {
       console.error("Error fetching group details:", error);
       toast.error("Failed to load group details");
@@ -59,17 +61,17 @@ export function GroupDetailPanel({
     }
   };
 
-  const handleUpdateUrl = async () => {
+  const handleUpdateFacebookId = async () => {
     if (!group?.id) return;
     
     setSubmitting(true);
     try {
-      const response = await fetch(`/api/facebook/groups/${group.id}/update-url`, {
+      const response = await fetch(`/api/facebook/groups/${group.id}/update-facebook-id`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: editedUrl }),
+        body: JSON.stringify({ facebookId: editedFacebookId }),
       });
       
       if (!response.ok) {
@@ -77,7 +79,7 @@ export function GroupDetailPanel({
       }
       
       toast.success("Group URL updated successfully");
-      setEditingUrl(false);
+      setEditingFacebookId(false);
       fetchGroupDetails(group.id); // Refresh group data
       if (onRefresh) onRefresh();
     } catch (error) {
@@ -145,11 +147,11 @@ export function GroupDetailPanel({
                 <Link2 className="h-5 w-5 mr-2" />
                 Group URL
               </h3>
-              {!editingUrl && (
+              {!editingFacebookId && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => setEditingUrl(true)}
+                  onClick={() => setEditingFacebookId(true)}
                 >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
@@ -157,11 +159,11 @@ export function GroupDetailPanel({
               )}
             </div>
             
-            {editingUrl ? (
+            {editingFacebookId ? (
               <div className="space-y-4">
                 <Input
-                  value={editedUrl}
-                  onChange={(e) => setEditedUrl(e.target.value)}
+                  value={editedFacebookId}
+                  onChange={(e) => setEditedFacebookId(e.target.value)}
                   placeholder="https://www.facebook.com/groups/..."
                   className="w-full"
                 />
@@ -169,15 +171,15 @@ export function GroupDetailPanel({
                   <Button 
                     variant="outline" 
                     onClick={() => {
-                      setEditingUrl(false);
-                      setEditedUrl(group.url);
+                      setEditingFacebookId(false);
+                      setEditedFacebookId(group.facebookId);
                     }}
                   >
                     Cancel
                   </Button>
                   <Button 
-                    onClick={handleUpdateUrl}
-                    disabled={submitting || editedUrl === group.url}
+                    onClick={handleUpdateFacebookId}
+                    disabled={submitting || editedFacebookId === group.facebookId}
                   >
                     Save Changes
                   </Button>
@@ -186,12 +188,12 @@ export function GroupDetailPanel({
             ) : (
               <div className="flex items-center">
                 <a 
-                  href={group.url} 
+                  href={`https://www.facebook.com/groups/${group.facebookId}`}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline flex items-center"
                 >
-                  {group.url}
+                  {`www.facebook.com/groups/${group.facebookId}`}
                   <ExternalLink className="ml-2 h-4 w-4" />
                 </a>
               </div>

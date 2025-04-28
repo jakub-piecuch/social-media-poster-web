@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/useToast";
+import { getTheme } from "@/lib/theme-config";
 
 interface PublishToFacebookButtonProps {
   groupUrl: string;
@@ -8,24 +9,25 @@ interface PublishToFacebookButtonProps {
 
 export function PublishToFacebookButton({ groupUrl, postContent }: PublishToFacebookButtonProps) {
   const { toast } = useToast();
+  const theme = getTheme();
 
   const handleClick = async () => {
     try {
       await navigator.clipboard.writeText(postContent);
       window.open(groupUrl, '_blank', 'noopener,noreferrer');
-      toast.success('Skopiowano treść posta!', {
-        description: 'Teraz wklej treść na Facebooku i opublikuj.',
+      toast.success('Copied post content successfully!', {
+        description: 'Paste copied content on facebook group.',
       });
     } catch (err) {
-      toast.error('Nie udało się skopiować treści.', {
-        description: 'Spróbuj skopiować ręcznie.',
+      toast.error('Could not copy post content', {
+        description: 'Try copying manually.',
       });
     }
   };
 
   return (
-    <Button onClick={handleClick} className="bg-blue-600 hover:bg-blue-700 text-white">
-      Opublikuj na Facebooku
+    <Button onClick={handleClick} className={`whitespace-nowrap ${theme.colors.primary} ${theme.colors.text} ${theme.colors.hover}`}>
+      Go to Facebook
     </Button>
   );
 }

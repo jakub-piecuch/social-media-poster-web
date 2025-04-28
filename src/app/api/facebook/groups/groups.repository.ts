@@ -21,10 +21,10 @@ export class GroupsRepository {
     return await GroupEntity.find();
   }
 
-  async updateUrlById(id: string, url: string): Promise<GroupEntity | null> {
+  async updateFacebookIdById(id: string, facebookId: string): Promise<GroupEntity | null> {
     return await GroupEntity.findOneAndUpdate(
       { _id: id},
-      { $set: { url: url }},
+      { $set: { facebookId: facebookId }},
       { new: true, runValidators: true }  
     )
   }

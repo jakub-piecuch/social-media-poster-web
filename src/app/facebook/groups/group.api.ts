@@ -19,7 +19,7 @@ export const fetchGroupById = async (id: string): Promise<Group> => {
     const error = await response.json();
     throw new Error(error.message || 'Failed to fetch group');
   }
-  
+    
   // Parse the JSON once
   return await response.json();
 };

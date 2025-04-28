@@ -12,12 +12,12 @@ export async function PATCH(
   { params }: { params: { id: string }}
 ): Promise<NextResponse<GroupResponse | ErrorDetails>> {
   const body = await request.json();
-  const url = body.url;
+  const facebookId = body.facebookId;
   const { id }  = await params;
-  console.log('[INFO] got request to update group\'s url by id.', id);
+  console.log('[INFO] got request to update group\'s facebookId by id.', id);
   
   try {
-    const group = await groupsService.updateUrlByGroupId(id, url);
+    const group = await groupsService.updateFacebookIdByGroupId(id, facebookId);
     const response = mapper.toResponse(group);
 
     return NextResponse.json(response, { status: 200 });

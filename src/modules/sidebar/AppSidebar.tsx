@@ -92,7 +92,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
       {/* This wrapper contains all content except the sign out button */}
       <div className="flex flex-col flex-grow min-h-0">
         <div className="flex items-center justify-between mb-4">
-          {(!collapsed || isMobileView) && <span className="text-lg font-semibold">SocialMediaPoster</span>}
+          {(!collapsed || isMobileView) && <span className="text-lg font-semibold">Social Media Poster</span>}
           {!isMobileView && (
             <Button
               variant="ghost"
@@ -161,7 +161,7 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
       <>
         {/* Mobile header bar */}
         <div className="w-full border-b bg-background shadow-sm py-2 px-4 flex items-center justify-between sticky top-0 z-10">
-          <span className="text-lg font-semibold">Solarium</span>
+          <span className="text-lg font-semibold">Social Media Poster</span>
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="shrink-0">

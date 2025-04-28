@@ -1,8 +1,7 @@
+import { PostsException } from "./posts.exception";
 import { Post } from "./types/Post";
 import { CreatePostRequest, PostResponse } from "./types/PostDto";
 import { PostEntity } from "./types/PostEntity";
-import { PostsException } from "./posts.exception";
-import { PlatformEnum } from "@/app/types/GlobalEnum";
 
 export class PostsMapper {
   toDomain(entity: PostEntity): Post {
@@ -16,7 +15,7 @@ export class PostsMapper {
       },
       userId: entity.userId || undefined,
       submitted: entity.submitted,
-      underReview: entity.underReview,
+      rejected: entity.rejected,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     });
@@ -27,7 +26,8 @@ export class PostsMapper {
       content: request.content,
       platform: request.platform,
       group: {
-        name: request.groupName
+        id: request.group.id,
+        name: request.group.name
       },
       userId: request.userId,
     });
@@ -44,7 +44,7 @@ export class PostsMapper {
       } : undefined,
       userId: post.userId,
       submitted: post.submitted || false,
-      underReview: post.underReview || false,
+      rejected: post.rejected || false,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt
     });
@@ -73,10 +73,13 @@ export class PostsMapper {
       id: post.id,
       platform: post.platform,
       content: post.content,
-      groupName: post.group?.name || undefined,
+      group: {
+        id: post.group?.id || undefined,
+        name: post.group?.name || undefined,
+      },
       userId: post.userId || undefined,
       submitted: post.submitted ?? false,
-      underReview: post.underReview ?? false,
+      rejected: post.rejected ?? false,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
     };

@@ -12,7 +12,7 @@ export interface PostEntity extends Document {
   };
   userId?: string;
   submitted: boolean;
-  underReview: boolean;
+  rejected: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -34,7 +34,7 @@ const PostEntitySchema = new Schema<PostEntity>({
   },
   userId: { type: String, default: uuidv4 },
   submitted: { type: Boolean, required: true, default: false },
-  underReview: { type: Boolean, required: true, default: false}
+  rejected: { type: Boolean, required: true, default: false}
 },
 {
   timestamps: true

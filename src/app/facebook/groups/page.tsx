@@ -23,13 +23,13 @@ export default function Groups() {
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
 
   // Define table headers
-  const headers = ["ID", "Name", "URL", "Users"];
+  const headers = ["Name", "Users"];
   
   // Transform the data to match our headers
   const transformedData = groups.data?.map(group => ({
     ID: group.id,
-    NAME: group.name,
-    URL: group.url,
+    Name: group.name,
+    // URL: group.facebookId,
     Users: group.userIds?.length > 0 ? (
       <Badge variant="outline">{group.userIds.length} connected</Badge>
     ) : (
@@ -92,7 +92,7 @@ export default function Groups() {
                 data={transformedData}
                 description="Facebook groups"
                 isLoading={groups.isLoading}
-                searchField="NAME"
+                searchField="Name"
                 idField="ID"
                 onRowClick={handleRowClick} // Use our custom row click handler instead of basePath
               />

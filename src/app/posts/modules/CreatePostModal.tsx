@@ -27,15 +27,66 @@ export function CreatePostModal({ open, onOpenChange }: CreatePostModalProps) {
   const [content, setContent] = useState('');
   const [platform, setPlatform] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('');
+  const [selectedUser, setSelectedUser] = useState(''); // Add state for selected user
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]); // Add state for available users
+  const [loadingUsers, setLoadingUsers] = useState(false); // Add loading state
+  
   const { mutate: createPost, isPending } = useCreatePost();
   const { data: groups, isLoading: isLoadingGroups, error: groupsError } = useGroups();
-  
+
   // Reset selectedGroup when platform changes to something other than Facebook
   useEffect(() => {
     if (platform !== PlatformEnum.FACEBOOK) {
       setSelectedGroup('');
+      setSelectedUser('');
+      setAvailableUsers([]);
     }
   }, [platform]);
+
+  // Fetch users for the selected group
+  useEffect(() => {
+    // Reset user selection when group changes
+    setSelectedUser('');
+    setAvailableUsers([]);
+    
+    // If no group is selected, don't fetch users
+    if (!selectedGroup || !groups) return;
+    
+    const fetchUsersForGroup = async () => {
+      setLoadingUsers(true);
+      try {
+        // Find the selected group object
+        const group = groups.find(g => g.id === selectedGroup);
+        
+        if (!group || !group.userIds || group.userIds.length === 0) {
+          // No users in this group
+          setAvailableUsers([]);
+          setLoadingUsers(false);
+          return;
+        }
+        
+        // Fetch all social media users
+        const response = await fetch('/api/social-media-users');
+        if (!response.ok) throw new Error('Failed to fetch users');
+        
+        const allUsers = await response.json();
+        
+        // Filter users to only include those assigned to the selected group
+        const groupUsers = allUsers.filter((user: any) => 
+          group.userIds.includes(user.id)
+        );
+        
+        setAvailableUsers(groupUsers);
+      } catch (error) {
+        console.error('Error fetching users for group:', error);
+        toast.error("Error loading users for this group");
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+    
+    fetchUsersForGroup();
+  }, [selectedGroup, groups]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,12 +102,18 @@ export function CreatePostModal({ open, onOpenChange }: CreatePostModalProps) {
       return;
     }
 
+    // Find the group object to get the name
+    const groupObject = groups?.find(group => group.id === selectedGroup);
+
     createPost(
       {
         content: content,
         platform: platform as PlatformEnum,
-        groupName: selectedGroup, // Use a default value for non-Facebook platforms
-        userId: '81f166e8-e864-49cd-90d7-905d62f8261d'
+        group: {
+          id: selectedGroup,
+          name: groupObject?.name || ""
+        },
+        userId: selectedUser || '81f166e8-e864-49cd-90d7-905d62f8261d' // Use selected user if available, otherwise use default
       },
       {
         onSuccess: () => {
@@ -66,6 +123,7 @@ export function CreatePostModal({ open, onOpenChange }: CreatePostModalProps) {
           setContent('');
           setPlatform('');
           setSelectedGroup('');
+          setSelectedUser('');
           onOpenChange(false);
         },
         onError: (error) => {
@@ -165,6 +223,43 @@ export function CreatePostModal({ open, onOpenChange }: CreatePostModalProps) {
                   {groupsError && (
                     <p className="text-xs text-destructive mt-1">
                       Error loading groups: {groupsError instanceof Error ? groupsError.message : 'Unknown error'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* User selection - only show when a Facebook group is selected */}
+            {platform === PlatformEnum.FACEBOOK && selectedGroup && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="user" className="text-right">
+                  User Account
+                </Label>
+                <div className="col-span-3">
+                  <Select
+                    value={selectedUser}
+                    onValueChange={setSelectedUser}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={loadingUsers ? "Loading users..." : availableUsers.length > 0 ? "Select a user" : "No users available"} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background text-foreground border shadow-md">
+                      {loadingUsers ? (
+                        <SelectItem value="loading" disabled>Loading users...</SelectItem>
+                      ) : availableUsers.length > 0 ? (
+                        availableUsers.map(user => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.username} ({user.platform})
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>No users assigned to this group</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {availableUsers.length === 0 && !loadingUsers && (
+                    <p className="text-xs text-amber-500 mt-1">
+                      This group has no assigned users. Using default user.
                     </p>
                   )}
                 </div>

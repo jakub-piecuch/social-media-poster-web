@@ -26,7 +26,17 @@ export class PostsRepository {
   async submitPostById(id: string): Promise<PostEntity | null> {
     const updatedPost = await PostEntity.findOneAndUpdate(
       { _id: id },
-      { $set: { submitted: true }},
+      { $set: { submitted: true, rejected: false  }},
+      { new: true, runValidators: true}
+    );
+
+    return updatedPost
+  }
+
+  async rejectPostById(id: string): Promise<PostEntity | null> {
+    const updatedPost = await PostEntity.findOneAndUpdate(
+      { _id: id },
+      { $set: { submitted: false, rejected: true }},
       { new: true, runValidators: true}
     );
 

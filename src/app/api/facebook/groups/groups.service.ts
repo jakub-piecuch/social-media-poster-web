@@ -14,7 +14,7 @@ export class GroupsService {
   }
 
   async createGroup(group: Group): Promise<Group> {
-    console.log('[INFO] Creating new Group with url:', { url: group.url })
+    console.log('[INFO] Creating new Group with facebookId:', { facebookId: group.facebookId })
 
     const entity = this.mapper.toEntity(group);
     const createdGroup = await this.groupsRespository.save(entity);
@@ -46,10 +46,10 @@ export class GroupsService {
     return groups.map(group => this.mapper.toDomain(group));
   }
 
-  async updateUrlByGroupId(id: string, url: string): Promise<Group> {
-    console.log('[INFO] Updating url of group: ', id)
+  async updateFacebookIdByGroupId(id: string, facebookId: string): Promise<Group> {
+    console.log('[INFO] Updating facebookId of group: ', id)
 
-    const updatedGroup = await this.groupsRespository.updateUrlById(id, url);
+    const updatedGroup = await this.groupsRespository.updateFacebookIdById(id, facebookId);
     
     if (!updatedGroup) {
       throw GroupsException.notFound();

@@ -23,7 +23,7 @@ interface CreateGroupModalProps {
 
 export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) {
   const theme = getTheme();
-  const [url, setUrl] = useState('');
+  const [facebookId, setFacebookId] = useState('');
   const [name, setName] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
   const { mutate: createGroup, isPending } = useCreateGroup();
@@ -32,7 +32,7 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!url) {
+    if (!facebookId) {
       toast.error('Url is required field.')
       return;
     }
@@ -41,7 +41,7 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
     
     createGroup(
       { 
-        url: url, 
+        facebookId: facebookId, 
         name: name,
         userIds: userIds
       },
@@ -50,7 +50,7 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
           toast.success("Success", {
             description: "Group has been created successfully",
           });
-          setUrl('');
+          setFacebookId('');
           setName('');
           setSelectedUserId('');
           onOpenChange(false);
@@ -77,14 +77,14 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="url" className="text-right">
-                Group URL
+                Facebook Group ID
               </Label>
               <Input
                 id="url"
                 placeholder="https://www.facebook.com/groups/..."
                 className="col-span-3"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                value={facebookId}
+                onChange={(e) => setFacebookId(e.target.value)}
                 required
               />
             </div>

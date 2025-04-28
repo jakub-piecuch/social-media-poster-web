@@ -13,9 +13,9 @@ const badgeVariants = cva(
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+          "border-transparent bg-red-800 text-white hover:bg-red-800",  // Direct color class
         outline: "text-foreground",
-        success: "border-transparent bg-green-500 text-white hover:bg-green-500/80",
+        success: "border-transparent bg-green-700 text-white hover:bg-green-800",  // Darker green
       },
     },
     defaultVariants: {
@@ -26,7 +26,7 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  VariantProps<typeof badgeVariants> { }
 
 // Enhanced memoization with proper equality check
 const Badge = React.memo(
@@ -40,13 +40,13 @@ const Badge = React.memo(
     if (prevProps.variant !== nextProps.variant) return false;
     if (prevProps.className !== nextProps.className) return false;
     if (prevProps.children !== nextProps.children) return false;
-    
+
     // Check for other important props that might influence rendering
     const prevKeys = Object.keys(prevProps);
     const nextKeys = Object.keys(nextProps);
-    
+
     if (prevKeys.length !== nextKeys.length) return false;
-    
+
     // Check for changes in any props
     for (const key of prevKeys) {
       if (key !== 'variant' && key !== 'className' && key !== 'children') {
@@ -55,7 +55,7 @@ const Badge = React.memo(
         }
       }
     }
-    
+
     return true;
   }
 )

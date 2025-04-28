@@ -2,14 +2,14 @@
 export interface Group {
   id: string;
   name: string;
-  url: string;
+  facebookId: string;
   userIds: string[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface CreateGroupRequest {
-  url: string;
+  facebookId: string;
   name: string;
   userIds: string[];
 }

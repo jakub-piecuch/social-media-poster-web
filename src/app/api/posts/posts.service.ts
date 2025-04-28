@@ -61,6 +61,16 @@ export class PostsService {
     return this.mapper.toDomain(updatedPost);
   }
 
+  async rejectPostById(id: string): Promise<Post> {
+    const updatedPost = await this.postsRepository.rejectPostById(id);
+
+    if (!updatedPost) {
+      throw PostsException.notFound();
+    }
+
+    return this.mapper.toDomain(updatedPost);
+  }
+
   async updatePost(post: Post): Promise<Post> {
     console.log('[INFO] Updating post with id:', post.id)
 

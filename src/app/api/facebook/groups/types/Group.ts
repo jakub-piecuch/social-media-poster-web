@@ -2,7 +2,7 @@
 export class Group {
   id?: string;
   name: string;
-  url: string;
+  facebookId: string;
   userIds: string[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -10,7 +10,7 @@ export class Group {
   constructor(post: Group) {
     this.id = post.id;
     this.name = post.name;
-    this.url = post.url;
+    this.facebookId = post.facebookId;
     this.userIds = post.userIds;
     this.createdAt = post.createdAt;
     this.updatedAt = post.updatedAt;

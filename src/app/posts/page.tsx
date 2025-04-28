@@ -23,20 +23,26 @@ export default function Posts() {
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
 
   // Define table headers
-  const headers = ["ID", "Content", "Platform", "Group", "Status", "Review"];
+  const headers = ["Content", "Platform", "Group", "Status"];
+
+
+  const getBadgeForStatus = (submitted: boolean, rejected: boolean) => {
+    if (submitted && !rejected) {
+      return <Badge variant="success">Submitted</Badge>
+    } else if (submitted && rejected || !submitted && rejected) {
+      return <Badge variant="destructive">Rejected</Badge>
+    } else if (!submitted && !rejected) {
+      return <Badge variant="default">Draft</Badge>
+    }
+  }
   
   // Transform the data to match our headers
   const transformedData = posts.data?.map(post => ({
     ID: post.id,
     Content: post.content.length > 50 ? post.content.substring(0, 49) + '...' : post.content,
     Platform: post.platform,
-    Group: post.groupName || "-",
-    Status: post.submitted ? 
-      <Badge variant="success">Submitted</Badge> : 
-      <Badge variant="default">Draft</Badge>,
-    Review: post.underReview ? 
-      <Badge variant="destructive">Under Review</Badge> : 
-      <Badge variant="outline">Not Reviewed</Badge>,
+    Group: post.group?.name || "-",
+    Status: getBadgeForStatus(post.submitted, post.rejected)
   })) || [];
 
   const handleRowClick = (item: any) => {

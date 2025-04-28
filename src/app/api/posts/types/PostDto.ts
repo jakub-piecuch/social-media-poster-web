@@ -4,10 +4,13 @@ export interface PostResponse {
   id: string,
   platform: string,
   content: string,
-  groupName?: string,
+  group?: {
+    id?: string,
+    name?: string
+  },
   userId?: string,
   submitted: boolean,
-  underReview: boolean,
+  rejected: boolean,
   createdAt: Date,
   updatedAt: Date,
 }
@@ -15,6 +18,9 @@ export interface PostResponse {
 export interface CreatePostRequest {
   content: string,
   platform: PlatformEnum,
-  groupName: string,
+  group: {
+    id: string,
+    name: string
+  },
   userId: string
 }
