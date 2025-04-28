@@ -1,5 +1,5 @@
-import { Post } from "../api/posts/types/Post";
 import { CreatePostRequest } from "../api/posts/types/PostDto";
+import { Post } from "./post.types";
 
 export const fetchPosts = async (): Promise<Post[]> => {
   const response = await fetch('/api/posts');
@@ -7,8 +7,11 @@ export const fetchPosts = async (): Promise<Post[]> => {
     const error = await response.json();
     throw new Error(error.message || 'Failed to fetch posts');
   }
-  console.log('posts json: ', response.json())
-  return response.json();
+  
+  // Parse the JSON once and store it in a variable
+  const data = await response.json();
+  console.log('posts data:', data);
+  return data;
 };
 
 export const createPost = async (groupData: CreatePostRequest): Promise<Post> => {

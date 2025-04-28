@@ -37,11 +37,13 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
       return;
     }
     
+    const userIds = selectedUserId ? [selectedUserId] : [];
+    
     createGroup(
       { 
         url: url, 
         name: name,
-        userIds: !selectedUserId ? [selectedUserId] : []
+        userIds: userIds
       },
       {
         onSuccess: () => {
@@ -88,7 +90,7 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="url" className="text-right">
+              <Label htmlFor="name" className="text-right">
                 Group Name
               </Label>
               <Input
@@ -109,10 +111,9 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
                 <Select 
                   value={selectedUserId} 
                   onValueChange={setSelectedUserId}
-                  required
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a user" />
+                    <SelectValue placeholder="Select a user (optional)" />
                   </SelectTrigger>
                   <SelectContent>
                     {isLoadingUsers ? (

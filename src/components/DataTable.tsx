@@ -1,6 +1,4 @@
-// src/components/DataTable.tsx - Updated version with fixed hover styles
-
-"use client"; // Add this to ensure the component runs on the client
+"use client";
 
 import React, { FC, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
@@ -57,7 +55,7 @@ export const DataTable = <T extends Record<string, any>,>({
   const router = useRouter();
 
   // Determine which field to search in (default to first header if not specified)
-  const fieldToSearch = searchField || headers[0].toLowerCase() as keyof T;
+  const fieldToSearch = searchField || headers[0] as keyof T;
 
   const filteredData = data.filter((item) => {
     // Handle possible undefined or null values
@@ -177,11 +175,13 @@ const DataTableContent = <T extends Record<string, any>,>({
             onClick={() => handleRowClick(item)}
           >
             {headers.map((header, cellIndex) => {
-              const key = header.toLowerCase();
-              const value = item[key as keyof T];
+              // Direct access to the property using the header as the key
+              const value = item[header];
               
-              // Check if the current header/key is "url" or contains "url" or "website"
-              const isUrlField = key === "url" || key.includes("url") || key.includes("website");
+              // Check if the current header might be a URL field
+              const isUrlField = header.toLowerCase().includes('url') || 
+                                header.toLowerCase().includes('website') || 
+                                header.toLowerCase() === 'link';
               
               return (
                 <TableCell
