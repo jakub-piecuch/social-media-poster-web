@@ -2,10 +2,10 @@ import { PlatformEnum } from "@/app/types/GlobalEnum"
 
 export interface PostResponse {
   id: string,
+  platform: string,
   content: string,
-  postId: string,
-  groupId: string,
-  userId: string,
+  groupName?: string,
+  userId?: string,
   submitted: boolean,
   underReview: boolean,
   createdAt: Date,
@@ -15,6 +15,6 @@ export interface PostResponse {
 export interface CreatePostRequest {
   content: string,
   platform: PlatformEnum,
-  groupId: string,
+  groupName: string,
   userId: string
 }

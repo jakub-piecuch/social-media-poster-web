@@ -5,11 +5,20 @@ export class GroupsRepository {
   }
 
   async save(entity: GroupEntity): Promise<GroupEntity> {
-    return await GroupEntity.create(entity);
+    try {
+      return await GroupEntity.create(entity);
+    } catch (err) {
+      console.error('GroupsRepository save error:', err);
+      throw err;
+    }
   }
 
   async findById(id: string): Promise<GroupEntity | null> {
     return await GroupEntity.findOne({ _id: id });
+  }
+
+  async findAll(): Promise<GroupEntity[]> {
+    return await GroupEntity.find();
   }
 
   async updateUrlById(id: string, url: string): Promise<GroupEntity | null> {

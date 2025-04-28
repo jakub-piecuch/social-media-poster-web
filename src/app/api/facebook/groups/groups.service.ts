@@ -1,3 +1,4 @@
+import { create } from "domain";
 import { GroupsException } from "./groups.exception";
 import { GroupsMapper } from "./groups.mapper";
 import { GroupsRepository } from "./groups.repository";
@@ -13,13 +14,14 @@ export class GroupsService {
   }
 
   async createGroup(group: Group): Promise<Group> {
-    console.log('[INFO] Creating new Group with url:', { userId: group.url })
+    console.log('[INFO] Creating new Group with url:', { url: group.url })
 
     const entity = this.mapper.toEntity(group);
     const createdGroup = await this.groupsRespository.save(entity);
 
     return this.mapper.toDomain(createdGroup);
   }
+
   async findGroupById(id: string): Promise<Group> {
     console.log('[INFO] Find group by id: ', id)
     
@@ -31,6 +33,19 @@ export class GroupsService {
 
     return this.mapper.toDomain(group);
   }
+
+  async findAllGroups(): Promise<Group[]> {
+    console.log('[INFO] Fetching all Groups.')
+
+    const groups = await this.groupsRespository.findAll();
+
+    if (!groups) {
+      console.log('[INFO] not groups found');
+    }
+
+    return groups.map(group => this.mapper.toDomain(group));
+  }
+
   async updateUrlByGroupId(id: string, url: string): Promise<Group> {
     console.log('[INFO] Updating url of group: ', id)
 

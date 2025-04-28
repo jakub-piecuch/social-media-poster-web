@@ -1,10 +1,13 @@
+// src/components/DataTable.tsx - Updated version with fixed hover styles
+
+"use client"; // Add this to ensure the component runs on the client
+
 import React, { FC, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
   CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,32 +28,48 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-
-interface Props {
+interface Props<T extends Record<string, any>> {
   headers: string[];
-  data: any[];
+  data: T[];
   description?: string;
-  // searchQuery: string;
   isLoading: boolean;
+  idField?: keyof T; // Allow customizing which field to use as ID
+  searchField?: keyof T; // Allow customizing which field to search in
+  onRowClick?: (item: T) => void; // Optional custom row click handler
+  basePath?: string; // Base path for navigation when clicking a row
 }
 
-export const DataTable: FC<Props> = ({ headers, data, description, isLoading }) => {
-
+export const DataTable = <T extends Record<string, any>,>({
+  headers,
+  data,
+  description = "items",
+  isLoading,
+  idField = "id" as keyof T,
+  searchField,
+  onRowClick,
+  basePath
+}: Props<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [pageSize, setPageSize] = useState("10");
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 
-  const filteredData = data.filter((item) =>
-    //accessing first header as it should be the one we are looking by
-    item[headers[0].toLowerCase()].toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Determine which field to search in (default to first header if not specified)
+  const fieldToSearch = searchField || headers[0].toLowerCase() as keyof T;
+
+  const filteredData = data.filter((item) => {
+    // Handle possible undefined or null values
+    const fieldValue = item[fieldToSearch];
+    if (fieldValue === undefined || fieldValue === null) return false;
+
+    return String(fieldValue).toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   // Calculate pagination
   const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / parseInt(pageSize));
+  const totalPages = Math.max(1, Math.ceil(totalItems / parseInt(pageSize)));
 
   // Get current page of data
   const indexOfLastItem = currentPage * parseInt(pageSize);
@@ -68,144 +87,223 @@ export const DataTable: FC<Props> = ({ headers, data, description, isLoading }) 
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
+  // Handle row click
+  const handleRowClick = (item: T) => {
+    if (onRowClick) {
+      onRowClick(item);
+    } else if (basePath) {
+      // Ensure the ID exists before navigating
+      const id = item[idField];
+      if (id !== undefined) {
+        router.push(`${basePath}/${id}`);
+      }
+    }
+  };
+
   return (
-    <div>
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="mt-2 relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={`Search ${description}...`}
-              className="pl-8 w-full md:w-80"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          {isLoading ? showLoadingRows() : currentData.length > 0 ? generateTable(currentData, headers, description) : showEmptyDataContent()}
-        </CardContent>
-        {filteredData.length > 0 && (
-          getFooterContent(indexOfFirstItem, indexOfLastItem, totalItems, pageSize, handlePageSizeChange, handlePageChange, currentPage, totalPages)
-        )}
-      </Card>
-    </div>
-  );
-}
-
-function getFooterContent(indexOfFirstItem: number, indexOfLastItem: number, totalItems: number, pageSize: string, handlePageSizeChange: (value: string) => void, handlePageChange: (page: number) => void, currentPage: number, totalPages: number): React.ReactNode {
-  return <CardFooter className="flex items-center justify-between pt-0">
-    <div className="text-sm text-muted-foreground">
-      {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} of {totalItems}
-    </div>
-    <div className="flex items-center space-x-6">
-      <div className="flex items-center space-x-2">
-        <Select
-          value={pageSize}
-          onValueChange={handlePageSizeChange}
-        >
-          <SelectTrigger className="h-8 w-[70px]">
-            <SelectValue placeholder="10" />
-          </SelectTrigger>
-          <SelectContent side="top">
-            {["10", "15", "20"].map((size) => (
-              <SelectItem key={size} value={size}>
-                {size}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="h-8 w-8 p-0"
-        >
-          <span className="sr-only">Go to previous page</span>
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <div className="text-sm font-medium">
-          {currentPage} of {totalPages}
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="mt-2 relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder={`Search ${description}...`}
+            className="pl-8 w-full md:w-80"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0"
-        >
-          <span className="sr-only">Go to next page</span>
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  </CardFooter>;
-}
+      </CardHeader>
 
-function showEmptyDataContent(): React.ReactNode {
-  return <div className="text-center py-10">
-    <p className="text-muted-foreground mb-4">No companies found</p>
-  </div>;
-}
+      <CardContent>
+        {isLoading ? (
+          <LoadingRows />
+        ) : currentData.length > 0 ? (
+          <DataTableContent
+            data={currentData}
+            headers={headers}
+            handleRowClick={handleRowClick}
+          />
+        ) : (
+          <EmptyState />
+        )}
+      </CardContent>
 
-function generateTable(currentData: any[], headers: string[], description?: string): React.ReactNode {
-  return <Table>
-    <TableHeader>
-      <TableRow className="hover:bg-transparent cursor-default">
-        {headers.map((header, index) => (
-          <TableHead
-            key={index}
-            //add hidden if want to hide when small screen
-            className={index > 0 ? "md:table-cell" : ""}
-          >
-            {header}
-          </TableHead>
-        ))}
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {currentData.map((item) => (
-        <TableRow
-          key={item.id}
-          className="cursor-pointer hover:bg-muted/50"
-          onClick={() => router.push(`/${description}/${item.id}`)}
-        >
+      {filteredData.length > 0 && (
+        <TableFooter
+          indexOfFirstItem={indexOfFirstItem}
+          indexOfLastItem={indexOfLastItem}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          handlePageSizeChange={handlePageSizeChange}
+          handlePageChange={handlePageChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+      )}
+    </Card>
+  );
+};
+
+// Component for displaying table content
+const DataTableContent = <T extends Record<string, any>,>({
+  data,
+  headers,
+  handleRowClick,
+}: {
+  data: T[];
+  headers: string[];
+  handleRowClick: (item: T) => void;
+}) => {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent cursor-default">
           {headers.map((header, index) => (
-            <TableCell
+            <TableHead
               key={index}
-              className={index > 0 ? "font-medium" : "md:table-cell"}
+              className={index > 0 ? "md:table-cell" : ""}
             >
-              {/* if website and has value do hyperlink otherwise '-' */}
-              {header == "Website" && item[header.toLowerCase()]
-                ? <a
-                  href={`https://${item[header.toLowerCase()]}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {item[header.toLowerCase()]}
-                </a>
-                : item[header.toLowerCase()] || "-"}
-            </TableCell>
+              {header}
+            </TableHead>
           ))}
         </TableRow>
-      ))}
-    </TableBody>
-  </Table>;
-}
+      </TableHeader>
+      <TableBody>
+        {data.map((item, rowIndex) => (
+          <TableRow
+            key={`row-${rowIndex}-${String(item.id || rowIndex)}`}
+            className="cursor-pointer transition-colors hover:bg-green-100 dark:hover:bg-green-900/30"
+            onClick={() => handleRowClick(item)}
+          >
+            {headers.map((header, cellIndex) => {
+              const key = header.toLowerCase();
+              const value = item[key as keyof T];
+              
+              // Check if the current header/key is "url" or contains "url" or "website"
+              const isUrlField = key === "url" || key.includes("url") || key.includes("website");
+              
+              return (
+                <TableCell
+                  key={`cell-${rowIndex}-${cellIndex}`}
+                  className={cellIndex > 0 ? "font-medium" : "md:table-cell"}
+                >
+                  {isUrlField && value ? (
+                    <a
+                      href={typeof value === 'string' ? (value.startsWith("http") ? value : `https://${value}`) : '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click when clicking the link
+                      }}
+                    >
+                      {value}
+                    </a>
+                  ) : (
+                    value || "-"
+                  )}
+                </TableCell>
+              );
+            })}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
 
-function showLoadingRows(): React.ReactNode {
-  return <div className="space-y-3">
-    {[...Array(3)].map((_, i) => (
-      <div key={i} className="flex items-center space-x-4">
-        <Skeleton className="h-12 w-full" />
-      </div>
-    ))}
-  </div>;
-}
+// Loading state component
+const LoadingRows: FC = () => {
+  return (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex items-center w-full mb-4">
+          <Skeleton className="h-12 w-full bg-gray-300 dark:bg-gray-300" />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Empty state component
+const EmptyState: FC = () => {
+  return (
+    <div className="text-center py-10">
+      <p className="text-muted-foreground mb-4">No data found</p>
+    </div>
+  );
+};
+
+// Table footer with pagination
+const TableFooter: FC<{
+  indexOfFirstItem: number;
+  indexOfLastItem: number;
+  totalItems: number;
+  pageSize: string;
+  handlePageSizeChange: (value: string) => void;
+  handlePageChange: (page: number) => void;
+  currentPage: number;
+  totalPages: number;
+}> = ({
+  indexOfFirstItem,
+  indexOfLastItem,
+  totalItems,
+  pageSize,
+  handlePageSizeChange,
+  handlePageChange,
+  currentPage,
+  totalPages,
+}) => {
+    return (
+      <CardFooter className="flex items-center justify-between pt-0">
+        <div className="text-sm text-muted-foreground">
+          {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, totalItems)} of {totalItems}
+        </div>
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2">
+            <Select
+              value={pageSize}
+              onValueChange={handlePageSizeChange}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder="10" />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {["10", "15", "20", "50"].map((size) => (
+                  <SelectItem key={size} value={size}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-sm font-medium">
+              {currentPage} of {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="h-8 w-8 p-0"
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardFooter>
+    );
+  };

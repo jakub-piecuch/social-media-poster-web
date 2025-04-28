@@ -15,6 +15,10 @@ export class PostsRepository {
     return await PostEntity.findOne({ _id: id });
   }
 
+  async findPostsByCriteria() {
+    return await PostEntity.find();
+  }
+
   async findAllByUserId(userId: string): Promise<PostEntity[]> {
     return await PostEntity.find({ userId: userId });
   }

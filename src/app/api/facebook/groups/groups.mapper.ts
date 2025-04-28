@@ -7,6 +7,7 @@ export class GroupsMapper {
   toDomain(entity: GroupEntity): Group {
     return new Group({
       id: entity._id,
+      name: entity.name,
       url: entity.url,
       userIds: entity.userIds,
       createdAt: entity.createdAt,
@@ -16,6 +17,7 @@ export class GroupsMapper {
 
   toDomainFromCreateRequest(request: CreateGroupRequest): Group {
     return new Group({
+      name: request.name,
       url: request.url,
       userIds: request.userIds,
     })
@@ -24,6 +26,7 @@ export class GroupsMapper {
   toEntity(group: Group): GroupEntity {
     return new GroupEntity({
       _id: group.id,
+      name: group.name,
       url: group.url,
       userIds: group.userIds,
       createdAt: group.createdAt,
@@ -38,6 +41,7 @@ export class GroupsMapper {
 
     return {
       id: group.id,
+      name: group.name,
       url: group.url,
       userIds: group.userIds,
       createdAt: group.createdAt,

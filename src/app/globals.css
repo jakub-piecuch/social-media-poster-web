@@ -15,7 +15,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #1e1e1e;
-    --foreground: #080707;
+    --foreground: #dddddd;
   }
 }
 
@@ -23,4 +23,56 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.toaster-wrapper {
+  --toaster-z-index: 1000;
+}
+
+.toast {
+  --toast-background: hsl(var(--background));
+  --toast-border: hsl(var(--border));
+  --toast-text: hsl(var(--foreground));
+  border: 1px solid var(--toast-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .toast {
+  --toast-background: hsl(var(--card));
+  --toast-border: hsl(var(--border));
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 999 !important; /* Ensure dropdowns appear on top of other elements */
+}
+
+.radix-select-content,
+[data-radix-select-content] {
+  background-color: var(--background, #1e1e1e) !important;
+  color: var(--foreground, #dddddd) !important;
+  border: 1px solid var(--border, #333) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Style for select items */
+[data-radix-select-item] {
+  background-color: var(--background, #1e1e1e) !important;
+  color: var(--foreground, #dddddd) !important;
+}
+
+/* Style for hovered select items */
+[data-radix-select-item]:hover,
+[data-radix-select-item]:focus {
+  background-color: var(--accent, #333) !important;
+  color: var(--accent-foreground, #fff) !important;
+}
+
+/* Ensure proper styling for dropdown menu components as well */
+.radix-dropdown-content,
+[data-radix-dropdown-content] {
+  background-color: var(--background, #1e1e1e) !important;
+  color: var(--foreground, #dddddd) !important;
+  border: 1px solid var(--border, #333) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5) !important;
 }

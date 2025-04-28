@@ -10,8 +10,10 @@ import {
   HomeIcon,
   HousePlus,
   LogOut,
-  Menu
+  Menu,
+  Slice
 } from "lucide-react";
+import Facebook from "next-auth/providers/facebook";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -112,8 +114,9 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
             </p>
             <div className="space-y-1">
               <NavItem to="/dashboard" icon={HomeIcon} label="Dashboard" />
-              <NavItem to="/accounts" icon={Calendar} label="Accounts" />
-              <NavItem to="/settings" icon={Calendar} label="Settings" />
+              <NavItem to="/posts" icon={HomeIcon} label="Posts" />
+              {/* <NavItem to="/accounts" icon={Calendar} label="Accounts" /> */}
+              {/* <NavItem to="/settings" icon={Calendar} label="Settings" /> */}
               {/* <NavItem to="/sales-performance" icon={BarChart3} label="Sales Performance" />
               <NavItem to="/commissions" icon={Calculator} label="Commission" />
               <NavItem to="/account-planning" icon={Building2} label="Account Planning" />
@@ -124,9 +127,10 @@ export function AppSidebar({ isMobileView = false }: AppSidebarProps) {
 
           <div className="mb-4">
             <p className={cn("text-xs font-semibold text-gray-200 mb-2 uppercase", collapsed && !isMobileView && "text-center")}>
-              {collapsed && !isMobileView ? "" : "Settings"}
+              {collapsed && !isMobileView ? "" : "Facebook"}
             </p>
             <div className="space-y-1">
+              <NavItem to="/facebook/groups" icon={Slice} label="Groups" />
               {/* <NavItem to="/settings" icon={Sliders} label="Integrations" /> */}
               {/* <NavItem to="/configuration" icon={Settings} label="Configuration" /> */}
               {/* <NavItem to="/companies" icon={HousePlus} label="Companies" /> */}

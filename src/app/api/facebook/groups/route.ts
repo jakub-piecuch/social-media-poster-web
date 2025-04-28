@@ -7,7 +7,7 @@ import { CreateGroupRequest, GroupResponse } from "./types/GroupDto";
 const groupsService = new GroupsService();
 const mapper = new GroupsMapper();
 
-export async function POST(request: NextRequest): Promise<NextResponse<GroupResponse | ErrorDetails >> {
+export async function POST(request: NextRequest): Promise<NextResponse<GroupResponse | ErrorDetails>> {
   console.log('[INFO] got request to create new group.');
 
   try {
@@ -18,6 +18,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<GroupResp
     const response = mapper.toResponse(createdGroup);
 
     return NextResponse.json(response, { status: 201 });
+
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+}
+
+export async function GET(): Promise<NextResponse<GroupResponse[] | ErrorDetails>> {
+  console.log('[INFO] got request to fetch all groups');
+
+  try {
+    const groups = await groupsService.findAllGroups();
+    const response = groups.map(group => mapper.toResponse(group))
+
+    return NextResponse.json(response, { status: 200 });
 
   } catch (error: any) {
     return handleApiError(error);

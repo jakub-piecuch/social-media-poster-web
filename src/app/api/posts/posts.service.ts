@@ -42,6 +42,15 @@ export class PostsService {
     return posts;
   }
 
+  async finAllPostsByCriteria(): Promise<Post[]> {
+    console.log('[INFO] Fetching posts by criteria: ')
+
+    // const mappedCriteria = this.mapper.mapCriteria(criteria)
+    const entities = await this.postsRepository.findPostsByCriteria()
+    
+    return entities.map(entity => this.mapper.toDomain(entity))
+  }
+
   async submitPostById(id: string): Promise<Post> {
     const updatedPost = await this.postsRepository.submitPostById(id);
 

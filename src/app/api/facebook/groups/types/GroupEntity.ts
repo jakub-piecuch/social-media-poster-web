@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface GroupEntity extends Document {
   _id?: string;
+  name: string;
   url: string;
   userIds: string[];
   createdAt?: Date;
@@ -12,8 +13,9 @@ export interface GroupEntity extends Document {
 
 const GroupEntitySchema = new Schema<GroupEntity>({
   _id: { type: String, default: uuidv4 },
+  name: { type: String, required: true },
   url: { type: String, required: true },
-  userIds: [{ type: String, required: true }],
+  userIds: [{ type: String }],
 },
 {
   timestamps: true
