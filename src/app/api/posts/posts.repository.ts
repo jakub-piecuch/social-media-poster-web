@@ -1,6 +1,7 @@
 import { Post } from "./types/Post";
 import { PostsMapper } from "./posts.mapper";
 import { PostEntity } from "./types/PostEntity";
+import { connectToDatabase } from "@/lib/mongoose";
 
 export class PostsRepository {
 
@@ -16,6 +17,8 @@ export class PostsRepository {
   }
 
   async findPostsByCriteria() {
+    await connectToDatabase();
+
     return await PostEntity.find();
   }
 
