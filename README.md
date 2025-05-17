@@ -1,143 +1,171 @@
-# Social Media Poster - Application Summary
+# Social Media Poster
+
+A modern web application for creating, managing, and scheduling social media posts across different platforms, with a focus on Facebook groups integration.
 
 ## Project Overview
-Social Media Poster is a Next.js application that allows users to create, schedule, and manage social media posts across different platforms. The application functions as an automation system that runs multiple "bot" accounts on a schedule, generating traffic in Facebook groups through comments and posts.
+
+Social Media Poster is a Next.js application that allows users to create and manage social media posts across different platforms. The application enables users to:
+
+- Manage social media user accounts
+- Create and organize Facebook groups
+- Create and schedule posts for different platforms
+- Manage post submissions and approvals
 
 ## Technical Stack
-- **Frontend**: Next.js with React 19
-- **Backend**: Next.js API routes (backend for frontend)
-- **Database**: MongoDB v7.0
-- **Authentication**: NextAuth.js with Facebook OAuth
-- **Containerization**: Docker
 
-## Key Features
-- Management of social media bot accounts
-- Facebook API integration for automated interactions
-- OAuth-based authentication for Facebook accounts
-- Secure token management and refresh mechanisms
-- Domain-driven design for scalable architecture
+- **Frontend**: Next.js 15.x with React 19
+- **Backend**: Next.js API routes
+- **Database**: MongoDB 7.0
+- **UI Components**: Custom components based on ShadCN UI
+- **State Management**: React Query for server state
+- **Styling**: Tailwind CSS
 
 ## Project Structure
 
-### Package Structure
+The application follows a domain-driven design approach with clear separation of concerns:
+
 ```
 social-media-poster/
-├── src/                       # Main source code
-│   ├── app/                   # Frontend package
-│   │   ├── api/               # Backend API routes
-│   │   │   ├── auth/          # Authentication endpoints
-│   │   │   ├── facebook-accounts/ # Facebook account management
-│   │   │   ├── facebook-api/  # Facebook Graph API services
-│   │   │   └── social-media-user/ # Social media user management
-│   │   ├── components/        # UI components
-│   │   ├── hooks/             # Custom React hooks
-│   │   └── lib/               # Shared utilities
-│   ├── errors/                # Error handling infrastructure
-│   ├── lib/                   # Core libraries (MongoDB, etc.)
-│   └── auth.ts                # NextAuth configuration
-└── public/                    # Static assets
+├── src/                          # Main source directory
+│   ├── app/                      # Next.js app directory
+│   │   ├── api/                  # API routes
+│   │   │   ├── facebook/         # Facebook API endpoints
+│   │   │   │   ├── groups/       # Facebook groups endpoints
+│   │   │   ├── posts/            # Posts management endpoints
+│   │   │   └── social-media-users/ # User management endpoints
+│   │   ├── accounts/             # Account management UI
+│   │   ├── dashboard/            # Dashboard UI
+│   │   ├── facebook/             # Facebook integration UI
+│   │   │   └── groups/           # Facebook groups management UI
+│   │   ├── posts/                # Post management UI
+│   │   ├── social-media-users/   # Social media users UI
+│   ├── components/               # Shared UI components
+│   ├── errors/                   # Error handling
+│   ├── hooks/                    # Custom React hooks
+│   ├── lib/                      # Utilities and helpers
+│   └── modules/                  # Feature modules
 ```
 
-## Architecture Details
+### Domain Model
 
-### Domain-Driven Design
-The application follows domain-driven design principles with clear separation of concerns:
-- **Controllers**: Handle HTTP requests/responses and parameter validation
-- **Services**: Contain business logic and orchestrate operations
-- **Repositories**: Abstract database operations
-- **Models**: Define domain entities and data structures
+The application is built around these core entities:
 
-### Facebook API Integration
-The Facebook API integration provides a comprehensive set of features:
+1. **Posts**: Content published to social media platforms
+2. **Groups**: Facebook groups where posts can be published
+3. **SocialMediaUsers**: User accounts on different platforms
 
-#### Data Model
-```typescript
-interface FacebookAuthData {
-  accessToken: string;
-  refreshToken?: string;
-  expiresAt: Date;
-  scopes: string[];
-  facebookUserId: string;
-  isActive: boolean;
-}
-```
+## Key Features
 
-#### Authentication Flow
-1. Admin users log in to the application using NextAuth
-2. Admin initiates Facebook account addition via `/api/auth/facebook/initiate`
-3. User is redirected to Facebook for authorization
-4. Facebook redirects to our callback URL
-5. Callback exchanges the authorization code for an access token
-6. The system creates a new Facebook account in the database
-7. Tokens are securely stored and refreshed as needed
+### Current Features
 
-#### API Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/auth/facebook/initiate` | Initiates Facebook OAuth flow |
-| GET | `/api/auth/facebook/callback` | Handles OAuth callback |
-| GET | `/api/facebook-api` | Lists all Facebook accounts |
-| POST | `/api/facebook-api` | Creates a new Facebook account |
-| GET | `/api/facebook-api/[id]` | Gets a specific Facebook account |
-| PATCH | `/api/facebook-api/[id]` | Updates account status |
-| DELETE | `/api/facebook-api/[id]` | Deletes a Facebook account |
+- **Social Media User Management**:
+  - Create and manage social media user accounts
+  - Associate users with platforms (Facebook, Instagram)
 
-#### Core Services
-- **FacebookApiService**: Handles all interactions with the Facebook Graph API
-- **FacebookAccountService**: Manages Facebook account operations within our system
-- **SocialMediaUserRepository**: Provides data access layer for all social media accounts
+- **Facebook Groups Management**:
+  - Create and manage Facebook groups
+  - Connect groups with user accounts
 
-### Error Handling
-The application implements a robust error handling system:
-- Custom exception classes for different error types
-- Consistent error response format
-- Domain-specific exceptions for better error identification
+- **Post Management**:
+  - Create posts for different platforms
+  - Submit and reject posts
+  - View post status
 
-## MongoDB Structure
-- Collections follow domain-driven design
-- Indexes for optimal query performance
-- Compound indexes to ensure data integrity
+### UI Components
 
-## Environment Configuration
-The following environment variables are required:
-```
-# MongoDB Connection
-MONGODB_URI=mongodb://root:rootpassword@localhost:27017/social-media-poster
+- Modern, responsive design using Tailwind CSS
+- Data tables with sorting and filtering
+- Modal dialogs for creating and editing entities
+- Slide panels for viewing details
+- Toast notifications for user feedback
 
-# NextAuth Secret
-NEXTAUTH_SECRET=your_nextauth_secret_here
-NEXTAUTH_URL=http://localhost:3000
+## Architecture
 
-# Facebook API
-FACEBOOK_CLIENT_ID=your_facebook_app_id_here
-FACEBOOK_CLIENT_SECRET=your_facebook_app_secret_here
-FACEBOOK_REDIRECT_URI=http://localhost:3000/api/auth/callback/facebook
-FACEBOOK_API_VERSION=v22.0
-```
+The application follows a layered architecture:
 
-## Docker Setup
-- MongoDB container for development and production
-- Docker Compose for orchestration
-- Volume mapping for data persistence
+1. **API Layer**: Next.js API routes that handle HTTP requests
+2. **Service Layer**: Business logic implementation
+3. **Repository Layer**: Data access abstraction
+4. **Model Layer**: Domain entities and data structures
+
+Each domain entity (Post, Group, SocialMediaUser) has its own set of:
+- API endpoints
+- Service implementations
+- Repository access
+- Exception handling
 
 ## Getting Started
-1. Clone the repository
-2. Create a `.env.local` file with the required environment variables
-3. Start the MongoDB container with Docker Compose:
+
+### Prerequisites
+
+- Node.js 18+ 
+- Docker and Docker Compose
+- MongoDB 7.0
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/social-media-poster.git
+   cd social-media-poster
    ```
-   docker-compose up -d mongodb
-   ```
-4. Install dependencies:
-   ```
+
+2. Install dependencies:
+   ```bash
    npm install
    ```
-5. Run the development server:
+
+3. Start MongoDB using Docker:
+   ```bash
+   docker-compose up -d mongodb
    ```
+
+4. Create a `.env.local` file with required environment variables:
+   ```
+   MONGODB_URI=mongodb://root:rootpassword@localhost:27017/social-media-poster
+   ```
+
+5. Run the development server:
+   ```bash
    npm run dev
    ```
 
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Development
+
+### Creating New Features
+
+When adding new features:
+
+1. Create API endpoints in the appropriate domain folder
+2. Implement service layer with business logic
+3. Add repository methods for data access
+4. Create UI components for the feature
+5. Connect UI to the API using React Query
+
+### Architectural Principles
+
+- Follow domain-driven design
+- Keep business logic in service layer
+- Use repository pattern for data access
+- Handle errors consistently
+
 ## Future Development
-- **Bot Scheduling System**: Implementation of automated scheduling for bot actions
-- **Frontend Dashboard**: User interface for managing bot accounts and activities
-- **Analytics**: Reporting on bot performance and engagement metrics
-- **Multi-platform Support**: Extending to other social media platforms beyond Facebook
+
+Planned features for future development:
+
+- **Authentication System**: Complete NextAuth integration for user authentication
+- **Bot Scheduling System**: Automated scheduling for post publishing
+- **Advanced Analytics**: Track post performance and engagement
+- **Multi-platform Support**: Extend to other social media platforms
+- **Content Templates**: Reusable templates for posts
+- **Media Management**: Support for image and video content
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
