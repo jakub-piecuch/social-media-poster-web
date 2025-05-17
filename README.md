@@ -175,6 +175,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 <img src="public/screenshots/facebook-groups-details.png" alt="Facebook group details view" width="50%" height="50%"/>
 
 - Social Media users table component view: 
-<img src="public/screenshots/social-media-users-view.png" alt="Social media users table" width="50%" height="50%"/>
+<img src="public/screenshots/social-media-users-view.png" alt="Social media users table"/>
 
 
