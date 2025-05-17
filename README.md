@@ -7,11 +7,8 @@ A modern web application for creating, managing, and scheduling social media pos
 Social Media Poster is a Next.js application that allows users to create and manage social media posts across different platforms. The application enables users to:
 
 - Manage social media user accounts
-![Social](public/screenshots/social-media-users-view.png)
 - Create and organize Facebook groups
-![Social media user Overview](public/screenshots/facebook-groups-details.png)
 - Create and schedule posts for different platforms
-![Social media user Overview](public/screenshots/post-details-view.png) 
 - Manage post submissions and approvals
 
 ## Technical Stack
@@ -169,6 +166,15 @@ Planned features for future development:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+## Screenshots
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- Post details component view:
+<img src="public/screenshots/post-details-view.png" alt="Post details vie" width="50%" height="50%"/> 
+
+- Facebook details component view:
+![Facebook group details view](public/screenshots/facebook-groups-details.png)
+
+- Social Media users table component view: 
+![Social media users table](public/screenshots/social-media-users-view.png)
+
+
