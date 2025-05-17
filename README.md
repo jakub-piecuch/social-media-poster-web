@@ -169,12 +169,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Screenshots
 
 - Post details component view:
-<img src="public/screenshots/post-details-view.png" alt="Post details vie" width="50%" height="50%"/> 
+<img src="public/screenshots/post-details-view.png" alt="Post details view" width="50%" height="50%"/> 
 
 - Facebook details component view:
-![Facebook group details view](public/screenshots/facebook-groups-details.png)
+<img src="public/screenshots/facebook-groups-details.png" alt="Facebook group details view" width="50%" height="50%"/>
 
 - Social Media users table component view: 
-![Social media users table](public/screenshots/social-media-users-view.png)
+<img src="public/screenshots/social-media-users-view.png" alt="Social media users table" width="50%" height="50%"/>
 
 
